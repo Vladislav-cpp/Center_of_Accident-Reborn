@@ -42,6 +42,8 @@ void ServerGame::Run() {
 
 	m_xSpawner->AddSpawnPoint(p);
 
+	GameTimer netRate(0.017);
+
 	while(true) {
 
 		globalTime.Update();
@@ -58,7 +60,12 @@ void ServerGame::Run() {
 
 		CleanupDestroyedObjects();
 
-		m_xNetwork->BroadcastWorld();
+		m_xNetwork->OnSyncWorldState();
+
+		if( netRate.IsFinished() ) {
+			netRate.Restart();
+			m_xNetwork->BroadcastWorld();
+		}
 	}
 
 }

@@ -128,7 +128,7 @@ class ServerNetworkSystem : public net::server_interface<MsgTypes> {
 	}
 
 	void BroadcastWorld() {
-		OnSyncWorldState();
+		//OnSyncWorldState();
 
 		net::message<MsgTypes> msg;
 		msg.header.id = MsgTypes::Game_WorldUpdate;
