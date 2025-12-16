@@ -1,0 +1,35 @@
+<UI>
+    <UIElement
+		NodeName="Ufo_1"
+        m_sTextureFile="Resources/images/ufo.png"
+		m_fAnimationSpeed=25
+		m_vProportions={97, 97}
+	    m_iNumberFrames=20
+        m_iDistanceAnimation=100
+		m_vSpriteOrigin={48, 48}
+		m_vFrameOffset={2, 2}
+    />
+
+	<UIElement
+		NodeName="Dust_1"
+		m_sTextureFile="Resources/images/Ufos.png"
+		m_fAnimationSpeed=10
+		m_vProportions={151, 134}
+		m_iNumberFrames=4
+		m_iDistanceAnimation=151
+		m_vSpriteOrigin={75, 75}
+		m_vSpriteScale={0.5, 0.5}
+	/>
+
+	<UIElement
+		NodeName="Chuck_1"
+		m_sTextureFile="Resources/images/Projectiles/11.png"
+		m_fAnimationSpeed=0.0
+		m_vProportions={182, 50}
+		m_iNumberFrames=0
+		m_iDistanceAnimation=0
+		m_vSpriteOrigin={0, 23}
+		m_vSpriteScale={0.2, 0.2}
+		m_vFrameOffset={29, 46}
+	/>
+</UI>

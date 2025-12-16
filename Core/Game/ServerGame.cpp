@@ -1,0 +1,76 @@
+#include "ServerGame.h"
+#include "ServerNetworkSystem.h"
+#include "World.h"
+#include "DestructibleObject.h"
+#include "HumenPlayerController.h"
+#include "AIPlayerController.h"
+#include "GameTime.h"
+#include "CollisionSystem.h"
+#include "SpawnSystem.h"
+
+ServerGame::ServerGame() {	
+	m_xNetwork = new ServerNetworkSystem(60000);
+	m_xSpawner = new SpawnSystem();
+}
+
+ServerGame::~ServerGame() {
+	delete m_xNetwork;
+	delete m_xSpawner;
+}
+
+
+//struct SpawnPoint {
+//	sf::Vector2f	m_vPos;
+//
+//	int m_iMaxBots = 0;
+//	int m_iSpawned = 0;
+//	int m_iBotsPerSpawn = 1;
+//
+//	GameTimer		m_xSpawnTimer;
+//};
+void ServerGame::Run() {
+	m_xNetwork->Start();
+	
+	uint32_t UniqueBOT_ID = 0;
+	GameTime globalTime;
+
+	SpawnPoint p;
+	p.m_vPos = {600 , 600};
+	p.m_iMaxBots = 500;
+	p.m_iBotsPerSpawn = 5;
+	p.m_xSpawnTimer = GameTimer{3};	
+
+	m_xSpawner->AddSpawnPoint(p);
+
+	while(true) {
+
+		globalTime.Update();
+		float dt = globalTime.Delta();
+
+		m_xNetwork->Update(-1, true);
+
+		if( !WHumanPlayers().empty() ) m_xSpawner->Update();
+
+		for( auto& ai : WAIPlayers() ) for( auto& comand : ai->GetController()->GenerateCommands(dt) ) comand->Execute();
+		for( auto& ai : WProjectiles() ) for( auto& comand : ai->GetController()->GenerateCommands(dt) ) comand->Execute();
+
+		CollSys().UpdateCollisions();
+
+		CleanupDestroyedObjects();
+
+		m_xNetwork->BroadcastWorld();
+	}
+
+}
+
+void ServerGame::CleanupDestroyedObjects() {
+	auto IsZeroHP = [](const auto& ob){ return ob->HP() == 0; };
+
+	WAIPlayers().kill_if(IsZeroHP);
+	WProjectiles().kill_if(IsZeroHP);
+
+	WAllObjects().kill_if([](const auto& ob){ 
+		auto dOb = std::dynamic_pointer_cast<DestructibleObject>(ob);
+		return dOb != nullptr && dOb->HP() == 0;
+	});
+}

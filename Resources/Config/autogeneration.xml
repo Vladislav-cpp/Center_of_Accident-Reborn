@@ -1,0 +1,20 @@
+
+<StaticStatsUfo
+	objectName="Ufo"
+	UI_Protorype="Ufo_1"
+	speedMovement=15
+/>
+
+<StaticStatsDust
+	objectName="Dust"
+	UI_Protorype="Dust_1"
+	speedMovement=15
+	m_vBehaviorState={"FollowPlayerState"}
+/>
+
+<StaticStatsProjectile
+	objectName="Chuck"
+	UI_Protorype="Chuck_1"
+	speedMovement=15
+	m_vBehaviorState={"ProjectileBehaviorState"}
+/>
