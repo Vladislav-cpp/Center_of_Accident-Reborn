@@ -17,47 +17,22 @@ list(APPEND SOURCES ${REFLECTION_SOURCES})
 
 add_executable(Center_of_Accident ${SOURCES})
 
-# -------------------------------------------------------
-# ВІДТВОРЕННЯ ФІЛЬТРІВ VISUAL STUDIO
-# -------------------------------------------------------
+# Створюємо окремий список файлів для Core, щоб CMake не плутав шляхи
+file(GLOB_RECURSE CORE_FILES CONFIGURE_DEPENDS
+    "${PROJECT_SOURCE_DIR}/Core/*.cpp"
+    "${PROJECT_SOURCE_DIR}/Core/*.h"
+    "${PROJECT_SOURCE_DIR}/Core/*.hpp"
+)
 
-# Змінна для зберігання файлів для VS (без ReflectionLib)
-set(ALL_FILES_FOR_FILTERS "")
+# Автоматичне дерево фільтрів (сама створить UI, Game, WorldObjects тощо)
+source_group(TREE "${PROJECT_SOURCE_DIR}/Core" PREFIX "Core" FILES ${CORE_FILES})
 
-# --- Головний файл ---
-set(MAIN_FILE "${PROJECT_SOURCE_DIR}/main/main.cpp")
-if(EXISTS ${MAIN_FILE})
-    source_group("main" FILES ${MAIN_FILE})
-    list(APPEND ALL_FILES_FOR_FILTERS ${MAIN_FILE})
-endif()
+# Ручні фільтри для того, що поза папкою Core
+source_group("main" FILES "${PROJECT_SOURCE_DIR}/main/main.cpp")
+source_group("ReflectionLib" FILES ${REFLECTION_SOURCES})
 
-# Макрос для створення фільтрів і додавання файлів у змінну
-function(add_filter_tree FILTER_NAME PATH_TO_DIR)
-    file(GLOB_RECURSE FILTER_FILES CONFIGURE_DEPENDS
-        "${PROJECT_SOURCE_DIR}/${PATH_TO_DIR}/*.cpp"
-        "${PROJECT_SOURCE_DIR}/${PATH_TO_DIR}/*.h"
-    )
-    if(FILTER_FILES)
-        # Створюємо вкладені фільтри автоматично
-        source_group(TREE "${PROJECT_SOURCE_DIR}/${PATH_TO_DIR}" PREFIX "${FILTER_NAME}" FILES ${FILTER_FILES})
-        # Додаємо до глобальної змінної
-        list(APPEND ALL_FILES_FOR_FILTERS ${FILTER_FILES})
-        set(ALL_FILES_FOR_FILTERS ${ALL_FILES_FOR_FILTERS} PARENT_SCOPE)
-    endif()
-endfunction()
-
-# --- Додаємо фільтри ---
-add_filter_tree("AutoGenHeaders"  "Core/AutoGenHeaders")
-add_filter_tree("Command"         "Core/Command")
-add_filter_tree("Config"          "Core/Config")
-add_filter_tree("Game"            "Core/Game")
-add_filter_tree("NetworkCommon"   "Core/NetworkCommon")
-add_filter_tree("UI"              "Core/UI")
-add_filter_tree("Utility"         "Core/Utility")
-add_filter_tree("WorldObjects"    "Core/WorldObjects")  # верхній рівень + всі вкладені
-
-# --- Додаємо всі файли до таргету (тільки ті, що в VS фільтрах) ---
-target_sources(Center_of_Accident PRIVATE ${ALL_FILES_FOR_FILTERS})
+# Оновлюємо таргет (додаємо всі файли, щоб вони були в проекті)
+target_sources(Center_of_Accident PRIVATE ${CORE_FILES} ${REFLECTION_SOURCES})
 
 file(GLOB_RECURSE CORE_DIRS LIST_DIRECTORIES true "${PROJECT_SOURCE_DIR}/Core/*")
 set(INCLUDE_DIRS

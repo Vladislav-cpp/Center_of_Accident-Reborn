@@ -4,7 +4,6 @@
 #include "Projectile.h"
 #include "MovementCommand.h"
 #include "FireCommand.h"
-#include "Game.h"
 #include "IStats.h"
 #include <tuple>
 

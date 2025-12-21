@@ -1,6 +1,4 @@
-﻿#include "Game.h"
-
-#include "ReflectionLib.hpp"
+﻿#include "ReflectionLib.hpp"
 #include "UIElement.h"
 #include <iostream>
 #include <fstream>

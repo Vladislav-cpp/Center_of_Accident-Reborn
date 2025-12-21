@@ -1,5 +1,4 @@
 #include "FireCommand.h"
-#include "Game.h"
 #include "PlayerCharacter.h"
 #include "Projectile.h"
 #include "CharacterFactory.h"

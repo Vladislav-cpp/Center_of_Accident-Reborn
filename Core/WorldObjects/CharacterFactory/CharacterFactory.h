@@ -8,7 +8,6 @@
 #include "HumenPlayerController.h"
 #include "UIElement.h"
 #include "Projectile.h"
-#include "Game.h"
 #include "ReflectionLib.hpp"
 #include <memory>
 #include <utility>

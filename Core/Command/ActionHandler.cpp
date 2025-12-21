@@ -1,7 +1,6 @@
 #include "ActionHandler.h"
 #include "MovementCommand.h"
 #include "FireCommand.h"
-#include "Game.h"
 #include "InputState.h"
 #include <SFML/Window.hpp>
 

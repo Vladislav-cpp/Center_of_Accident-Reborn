@@ -1,9 +1,9 @@
 #include "HumenPlayerController.h"
-#include "Game.h"
 #include "InputState.h"
 #include <SFML/Graphics.hpp>
 #include "ActionHandler.h"
 #include "GameTime.h"
+#include "StaticObject.h"
 
 #define Key sf::Keyboard::Key // sf::Mouse::Button::Left
 #define isKeyPressed sf::Keyboard::isKeyPressed

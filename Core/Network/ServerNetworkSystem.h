@@ -1,34 +1,21 @@
 #pragma once
 #include <unordered_map>
-#include "Game.h"
+#include <unordered_set>
 #include "StaticStatsProjectile.h"
 #include "Projectile.h"
 #include "CharacterFactory.h"
 #include "NetworkCommon.h"
+#include "World.h"
+#include "StaticStatsUfo.h"
 
 
-class Server : public net::tcp_server<MsgTypes>, public net::udp_server<MsgTypes> {
+class ServerNetworkSystem : public net::tcp_server<MsgTypes> {
 	public:
-	Server(uint16_t nPort) : net::tcp_server<MsgTypes>(nPort), net::udp_server<MsgTypes>(nPort) {}
+	ServerNetworkSystem(uint16_t nPort) : net::tcp_server<MsgTypes>(nPort) {}
 
 	WorldState m_sWorldState;
-	uint32_t m_uProjID = 0;
+	uint32_t m_uProjID = 1100;
 //	std::vector<uint32_t> m_vGarbageIDs;
-
-	void Start() {
-		tcp_server::Start();
-		udp_server::Start();
-	}
-
-	void Stop() {
-		tcp_server::Stop();
-		udp_server::Stop();
-	}
-
-	void Update(size_t nMaxMessages = -1, bool bWait = false) {
-		tcp_server::Update(nMaxMessages, bWait);
-		udp_server::Update(nMaxMessages, bWait);
-	}
 
 	virtual bool OnClientConnect(std::shared_ptr<net::tcpСonnection<MsgTypes>> client) override { 
 		net::message<MsgTypes> msgAddOtherPlayers;
@@ -78,7 +65,8 @@ class Server : public net::tcp_server<MsgTypes>, public net::udp_server<MsgTypes
 			MessageAllClients(msgAddPlayer, client);
 
 			// IF NOT EXIST 
-			Game::Instance().createPlayer(-1, id); // !!!!!
+			auto pl = CharacterFactory::Instance().CreateHumanPlayer<StaticStatsUfo>(-1);
+			pl->SetID(id);
 			std::cout << "createPlayer " << id << std::endl;
 
 			// add new player oll already existing plsyers
@@ -103,7 +91,8 @@ class Server : public net::tcp_server<MsgTypes>, public net::udp_server<MsgTypes
 			desc.ID = client->GetID();
 			if(desc.ID == 0) std::cout << "id = 0\n";
 			m_sWorldState.PlayerRst.insert_or_assign(desc.ID, desc);
-		
+
+			OnPlayerDataUpdate(desc.ID);
 			break;
 		}
 
@@ -140,6 +129,8 @@ class Server : public net::tcp_server<MsgTypes>, public net::udp_server<MsgTypes
 	}
 
 	void BroadcastWorld() {
+		//OnSyncWorldState();
+
 		net::message<MsgTypes> msg;
 		msg.header.id = MsgTypes::Game_WorldUpdate;
 
@@ -151,6 +142,95 @@ class Server : public net::tcp_server<MsgTypes>, public net::udp_server<MsgTypes
 		//if(m_sWorldState.Projectiles.size()>0) std::cout << "m_sWorldState.Projectiles.size()>0 - " <<  m_sWorldState.Projectiles.size() << std::endl;
 
 		MessageAllClients(msg);
+
+	}
+
+	void OnSyncWorldState() {
+		// ---- 1. Синхронізація ботів / гравців ----
+
+		// -----------------------------
+		// 1. Видалити мертві BotsRst ID
+		// -----------------------------
+		{
+			// Зібрати всі поточні ID
+			std::unordered_set<uint32_t> aliveBots;
+			for( auto& bot : WAIPlayers() ) aliveBots.insert(bot->ID());
+
+			// Видалити з мапи те, чого немає у aliveBots
+			std::erase_if(m_sWorldState.BotsRst, [&](const auto& pair) {
+				return !aliveBots.contains(pair.first);
+			});
+		}
+
+		// ------------------------------------------
+		// 2. Видалити мертві Projectiles ID
+		// ------------------------------------------
+		{
+			std::unordered_set<uint32_t> aliveProjectiles;
+			for( auto& proj : WProjectiles() ) aliveProjectiles.insert( proj->ID() );
+
+			std::erase_if(m_sWorldState.Projectiles, [&](const auto& pair) {
+				return !aliveProjectiles.contains(pair.first);
+			});
+		}
+		// ------------------------------------------
+		// 3. Заново заповнити BotsRst
+		// ------------------------------------------
+		for(auto& bot : WAIPlayers()) {
+
+			PlayerDescription desc;
+			desc.ID      = bot->ID();
+			desc.HP      = bot->HP();
+			desc.m_vCoord = bot->Coord();
+
+			m_sWorldState.BotsRst.insert_or_assign(desc.ID, desc);
+		}
+
+		// ------------------------------------------
+		// 4. Заново заповнити Projectiles
+		// ------------------------------------------
+		//world.Projectiles.clear();
+
+		for(auto& proj : WProjectiles()) {
+
+			ProjectileDescription desc;
+			desc.ID       = proj->ID();
+			desc.OwnerID  = proj->GetOwnerID();
+			//desc.MousePos = proj->GetMousePos();
+			//desc.PlayerPos = proj->GetOwnerPlayerPos();
+			desc.m_vCoord = proj->Coord();
+			desc.Angle = proj->GetRotate();
+			//std::cout << desc.Angle << std::endl;
+			//std::cout << desc.ID << std::endl;
+
+			m_sWorldState.Projectiles.insert_or_assign(desc.ID, desc);
+		}
+
+		// ------------------------------------------
+		// 3. Заново заповнити PlayerRst
+		// ------------------------------------------
+		for(auto& pl : WHumanPlayers()) {
+
+			PlayerDescription desc;
+			desc.ID      = pl->ID();
+			desc.HP      = pl->HP();
+			desc.m_vCoord = pl->Coord();
+
+			m_sWorldState.PlayerRst.insert_or_assign(desc.ID, desc);
+		}
+	}
+
+	void OnPlayerDataUpdate(int id = 0) {
+		auto itState = m_sWorldState.PlayerRst.find(id);
+		if( itState == m_sWorldState.PlayerRst.end() ) return;
+
+		for( auto& player : WHumanPlayers() ) {
+
+			if (player->ID() == id) {
+				player->SetCoord(itState->second.m_vCoord);
+				return;
+			}
+		}
 
 	}
 
