@@ -7,15 +7,30 @@
 #include "NetworkCommon.h"
 
 
-class Server : public net::server_interface<MsgTypes> {
+class Server : public net::tcp_server<MsgTypes>, public net::udp_server<MsgTypes> {
 	public:
-	Server(uint16_t nPort) : net::server_interface<MsgTypes>(nPort) {}
+	Server(uint16_t nPort) : net::tcp_server<MsgTypes>(nPort), net::udp_server<MsgTypes>(nPort) {}
 
 	WorldState m_sWorldState;
 	uint32_t m_uProjID = 0;
 //	std::vector<uint32_t> m_vGarbageIDs;
 
-	virtual bool OnClientConnect(std::shared_ptr<net::connection<MsgTypes>> client) override { 
+	void Start() {
+		tcp_server::Start();
+		udp_server::Start();
+	}
+
+	void Stop() {
+		tcp_server::Stop();
+		udp_server::Stop();
+	}
+
+	void Update(size_t nMaxMessages = -1, bool bWait = false) {
+		tcp_server::Update(nMaxMessages, bWait);
+		udp_server::Update(nMaxMessages, bWait);
+	}
+
+	virtual bool OnClientConnect(std::shared_ptr<net::tcpÑonnection<MsgTypes>> client) override { 
 		net::message<MsgTypes> msgAddOtherPlayers;
 		msgAddOtherPlayers.header.id = MsgTypes::Client_Accepted;
 		MessageClient(client, msgAddOtherPlayers);
@@ -25,7 +40,7 @@ class Server : public net::server_interface<MsgTypes> {
 		return true; 
 	}
 
-	void OnMessage(std::shared_ptr<net::connection<MsgTypes>> client, net::message<MsgTypes>& msg) override {
+	void OnMessage(std::shared_ptr<net::tcpÑonnection<MsgTypes>> client, net::message<MsgTypes>& msg) override {
 		//if (!m_vGarbageIDs.empty())
 		//{
 		//	for (auto pid : m_vGarbageIDs)

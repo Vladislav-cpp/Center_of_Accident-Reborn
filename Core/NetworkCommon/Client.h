@@ -1,7 +1,7 @@
 #pragma once
 
 #include <unordered_map>
-#include "olc_net.h"
+#include "net_all.h"
 #include "NetworkCommon.h"
 #include "Game.h"
 #include "PlayerCharacter.h"
@@ -11,7 +11,7 @@
 #include "StaticStatsUfo.h"
 
 
-class Client : public net::client_interface<MsgTypes> {
+class Client : public net::tcp—lientInterface<MsgTypes> {
 	public:
 	Client() {
 		//Connect("127.0.0.1", 60000); // !!

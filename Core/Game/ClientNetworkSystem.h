@@ -2,10 +2,10 @@
 #include <string>
 #include <unordered_set>
 
-#include "olc_net.h"
+#include "net_all.h"
 #include "NetworkCommon.h"
 
-class ClientNetworkSystem : public net::client_interface<MsgTypes> {
+class ClientNetworkSystem : public net::tcp—lientInterface<MsgTypes> {
 	public:
 	void Update();
 

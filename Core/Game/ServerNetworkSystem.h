@@ -8,15 +8,15 @@
 #include "StaticStatsUfo.h"
 
 
-class ServerNetworkSystem : public net::server_interface<MsgTypes> {
+class ServerNetworkSystem : public net::tcp_server<MsgTypes> {
 	public:
-	ServerNetworkSystem(uint16_t nPort) : net::server_interface<MsgTypes>(nPort) {}
+	ServerNetworkSystem(uint16_t nPort) : net::tcp_server<MsgTypes>(nPort) {}
 
 	WorldState m_sWorldState;
 	uint32_t m_uProjID = 1100;
 //	std::vector<uint32_t> m_vGarbageIDs;
 
-	virtual bool OnClientConnect(std::shared_ptr<net::connection<MsgTypes>> client) override { 
+	virtual bool OnClientConnect(std::shared_ptr<net::tcpÑonnection<MsgTypes>> client) override { 
 		net::message<MsgTypes> msgAddOtherPlayers;
 		msgAddOtherPlayers.header.id = MsgTypes::Client_Accepted;
 		MessageClient(client, msgAddOtherPlayers);
@@ -26,7 +26,7 @@ class ServerNetworkSystem : public net::server_interface<MsgTypes> {
 		return true; 
 	}
 
-	void OnMessage(std::shared_ptr<net::connection<MsgTypes>> client, net::message<MsgTypes>& msg) override {
+	void OnMessage(std::shared_ptr<net::tcpÑonnection<MsgTypes>> client, net::message<MsgTypes>& msg) override {
 		//if (!m_vGarbageIDs.empty())
 		//{
 		//	for (auto pid : m_vGarbageIDs)

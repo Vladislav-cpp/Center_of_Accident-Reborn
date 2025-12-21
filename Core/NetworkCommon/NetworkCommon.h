@@ -3,7 +3,7 @@
 #include "IStats.h"
 #include "StaticObject.h"
 #include "utility.h"
-#include "olc_net.h"
+#include "net_all.h"
 
 enum class MsgTypes : uint32_t {
 	Server_GetStatus,
