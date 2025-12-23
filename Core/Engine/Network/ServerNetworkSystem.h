@@ -9,9 +9,24 @@
 #include "StaticStatsUfo.h"
 
 
-class ServerNetworkSystem : public net::tcp_server<MsgTypes> {
+class ServerNetworkSystem : public net::tcp_server<MsgTypes>, public net::udp_server<MsgTypes> {
 	public:
-	ServerNetworkSystem(uint16_t nPort) : net::tcp_server<MsgTypes>(nPort) {}
+	ServerNetworkSystem(uint16_t nPort) : net::tcp_server<MsgTypes>(nPort), net::udp_server<MsgTypes>(nPort) {}
+
+	void Start() {
+		tcp_server::Start();
+		udp_server::Start();
+	}
+
+	void Stop() {
+		tcp_server::Stop();
+		udp_server::Stop();
+	}
+
+	void Update(size_t nMaxMessages = -1, bool bWait = false) {
+		tcp_server::Update(nMaxMessages, bWait);
+		udp_server::Update(nMaxMessages, bWait);
+	}
 
 	WorldState m_sWorldState;
 	uint32_t m_uProjID = 1100;
@@ -20,49 +35,42 @@ class ServerNetworkSystem : public net::tcp_server<MsgTypes> {
 	virtual bool OnClientConnect(std::shared_ptr<net::tcpÑonnection<MsgTypes>> client) override { 
 		net::message<MsgTypes> msgAddOtherPlayers;
 		msgAddOtherPlayers.header.id = MsgTypes::Client_Accepted;
-		MessageClient(client, msgAddOtherPlayers);
+		net::tcp_server<MsgTypes>::MessageClient(client, msgAddOtherPlayers);
 
-		std::cout << "OnClientConnect " << std::endl;
+		std::cout << "OnClientConnect " << std::endl; 
 
 		return true; 
 	}
 
-	void OnMessage(std::shared_ptr<net::tcpÑonnection<MsgTypes>> client, net::message<MsgTypes>& msg) override {
-		//if (!m_vGarbageIDs.empty())
-		//{
-		//	for (auto pid : m_vGarbageIDs)
-		//	{
-		//		net::message<MsgTypes> m;
-		//		m.header.id = MsgTypes::Game_RemovePlayer;
-		//		m << pid;
-		//		std::cout << "Removing " << pid << "\n";
-		//		MessageAllClients(m);
-		//	}
-		//	m_vGarbageIDs.clear();
-		//}
+	// udp and tcp 
+	void OnMessage(const net::client_ref<MsgTypes>& client_ref, net::message<MsgTypes>& msg) override {
 
-
-
+		auto tcpPtr = client_ref.tcp_ptr;
+		auto udpPtr = client_ref.udp_ptr;
+		
 		switch (msg.header.id) {
 
 		case MsgTypes::Client_RegisterWithServer :
 		{
+			
 			PlayerDescription desc;
 
-			auto id = client->GetID();
+			auto id = tcpPtr->GetID();
 			msg >> desc;
 			desc.ID = id;
 			m_sWorldState.PlayerRst.insert_or_assign(id, desc);
 
+			std::cout << " Client_RegisterWithServer " << id << std::endl;
+
 			net::message<MsgTypes> msgSendID;
 			msgSendID.header.id = MsgTypes::Client_AssignID;
 			msgSendID << id;
-			MessageClient(client, msgSendID);
+			net::tcp_server<MsgTypes>::MessageClient(tcpPtr, msgSendID);
 
 			net::message<MsgTypes> msgAddPlayer;
 			msgAddPlayer.header.id = MsgTypes::Game_AddPlayer;
 			msgAddPlayer << desc;
-			MessageAllClients(msgAddPlayer, client);
+			net::tcp_server<MsgTypes>::MessageAllClients(msgAddPlayer, tcpPtr);
 
 			// IF NOT EXIST 
 			auto pl = CharacterFactory::Instance().CreateHumanPlayer<StaticStatsUfo>(-1);
@@ -74,12 +82,23 @@ class ServerNetworkSystem : public net::tcp_server<MsgTypes> {
 				net::message<MsgTypes> msgAddOtherPlayers;
 				msgAddOtherPlayers.header.id = MsgTypes::Game_AddPlayer;
 				msgAddOtherPlayers << player.second;
-				MessageClient( client , msgAddOtherPlayers );
+				net::tcp_server<MsgTypes>::MessageClient( tcpPtr , msgAddOtherPlayers );
 			}
 
 			break;
 		}
 
+
+		case MsgTypes::Client_RegisterUDP : {
+			std::cout << "Client_RegisterUDP - " ;
+
+			uint32_t id;
+			msg >> id;
+			std::cout << id << std::endl;
+			udpPtr->SetID(id);
+
+			break;
+		}
 
 		case MsgTypes::Game_UpdatePlayer :
 		{
@@ -88,7 +107,7 @@ class ServerNetworkSystem : public net::tcp_server<MsgTypes> {
 
 			PlayerDescription desc;
 			msg >> desc;
-			desc.ID = client->GetID();
+			desc.ID = udpPtr->GetID();
 			if(desc.ID == 0) std::cout << "id = 0\n";
 			m_sWorldState.PlayerRst.insert_or_assign(desc.ID, desc);
 
@@ -128,6 +147,12 @@ class ServerNetworkSystem : public net::tcp_server<MsgTypes> {
 
 	}
 
+	// udp on Message
+	void OnMessage(const std::shared_ptr<net::udpConnection<MsgTypes>> client, net::message<MsgTypes>& msg) override {}
+
+	// tcp on Massage 
+	void OnMessage(std::shared_ptr<net::tcpÑonnection<MsgTypes>> client, net::message<MsgTypes>& msg) override {}
+
 	void BroadcastWorld() {
 		//OnSyncWorldState();
 
@@ -141,7 +166,7 @@ class ServerNetworkSystem : public net::tcp_server<MsgTypes> {
 		PackList(msg, m_sWorldState.Projectiles);
 		//if(m_sWorldState.Projectiles.size()>0) std::cout << "m_sWorldState.Projectiles.size()>0 - " <<  m_sWorldState.Projectiles.size() << std::endl;
 
-		MessageAllClients(msg);
+		net::udp_server<MsgTypes>::MessageAll(msg);
 
 	}
 
@@ -226,7 +251,7 @@ class ServerNetworkSystem : public net::tcp_server<MsgTypes> {
 
 		for( auto& player : WHumanPlayers() ) {
 
-			if (player->ID() == id) {
+			if(player->ID() == id) {
 				player->SetCoord(itState->second.m_vCoord);
 				return;
 			}

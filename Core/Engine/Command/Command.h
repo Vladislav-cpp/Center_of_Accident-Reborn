@@ -10,6 +10,7 @@ class Command {
 	
 	public:
 	void SetObject(std::shared_ptr<StaticObject> ob);
+	std::shared_ptr<StaticObject> Object();
 
 	protected:
 	std::shared_ptr<StaticObject> m_pObject = nullptr;

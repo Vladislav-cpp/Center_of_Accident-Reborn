@@ -42,14 +42,14 @@ void ServerGame::Run() {
 
 	m_xSpawner->AddSpawnPoint(p);
 
-	GameTimer netRate(0.017);
+	GameTimer netRate(0.033);
 
 	while(true) {
 
 		globalTime.Update();
 		float dt = globalTime.Delta();
 
-		m_xNetwork->Update(-1, true);
+		m_xNetwork->Update(-1);
 
 		if( !WHumanPlayers().empty() ) m_xSpawner->Update();
 

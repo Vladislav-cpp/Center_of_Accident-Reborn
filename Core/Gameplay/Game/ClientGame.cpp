@@ -113,6 +113,7 @@ void ClientGame::Run() {
 
 void ClientGame::ConectToServer() {
 	m_xNetwork->Connect("185.30.202.137", 60000);
+	//m_xNetwork->Connect("192.168.1.102", 60000);
 
 	while( !m_xNetwork->IsConnected() || m_xNetwork->GetMyID()==0 ) {
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
@@ -144,28 +145,12 @@ void ClientGame::SendPlayerActivities(float dt) {
 			cmd->Execute();
 		} else if( rawFireCommand ) {
 
-			ProjectileDescription desc;
-			desc.OwnerID = pl->ID();
-			desc.MousePos = rawFireCommand->GetMousePosition();  // координати мишки
-			desc.PlayerPos = pl->Coord();        // координати гравц€
-
-			net::message<MsgTypes> msg;
-			msg.header.id = MsgTypes::Game_AddProjectile;
-			msg << desc;
-			
 			SoundMg().PlaySound("Resources/sound and music/shot.ogg");
-			m_xNetwork->Send(msg); // в≥дправка серверу
+
+			m_xNetwork->SendCommand( cmd.get() );
 		}
 
 	}
 
-	PlayerDescription outdata;
-	outdata.ID = m_xNetwork->GetMyID();
-	outdata.m_vCoord = pl->Coord();
-	//outdata.HP = player->HP();
-
-	net::message<MsgTypes> msg;
-	msg.header.id = MsgTypes::Game_UpdatePlayer;
-	msg << outdata;
-	m_xNetwork->Send(msg);
+	m_xNetwork->SendPlayerState(m_xSession);
 }

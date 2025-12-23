@@ -5,12 +5,21 @@
 #include "net_all.h"
 #include "NetworkCommon.h"
 
-class ClientNetworkSystem : public net::tcp—lientInterface<MsgTypes> {
-	public:
-	void Update();
+class GameSession;
 
+class ClientNetworkSystem : public net::tcp_client<MsgTypes>, public net::udp_client<MsgTypes> {
+	public:
+	bool Connect(const std::string& host, const uint16_t port);
+
+	void Update();
+	void Update_TCP();
+	void Update_UDP();
 	public:
 	int GetMyID() { return m_iMyID; };
+
+	public:
+	void SendPlayerState(const GameSession& seddion);
+	void SendCommand(Command* comm);
 
 	private:
 	void OnWorldUpdate();

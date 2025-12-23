@@ -7,24 +7,38 @@
 #include "StaticStatsDust.h"
 #include "StaticStatsUfo.h"
 #include "StaticStatsProjectile.h"
+#include "GameSession.h"
+#include "FireCommand.h"
+
+bool ClientNetworkSystem::Connect(const std::string& host, const uint16_t port) {
+
+	auto bConnect_tcp = net::tcp_client<MsgTypes>::Connect(host, port);
+	auto bStart_udp = net::udp_client<MsgTypes>::Start(host, port);
+	return bConnect_tcp && bStart_udp;
+}
 
 void ClientNetworkSystem::Update() {
+	if( !IsConnected() ) return;
 
-if( !IsConnected() ) return;
+	Update_TCP();
+	Update_UDP();
+}
 
+void ClientNetworkSystem::Update_TCP() {
+	auto& tcp_inComing = net::tcp_client<MsgTypes>::Incoming();
 
-while( !Incoming().empty() ) {
+while( !tcp_inComing.empty() ) {
 			
-	auto inMsg = Incoming().pop_front().msg;
+	auto tcp_inMsg = !tcp_inComing.empty() ? tcp_inComing.pop_front().msg : net::message<MsgTypes>();
 
-	switch( inMsg.header.id ) { 
+	switch( tcp_inMsg.header.id ) { 
 		
 	case( MsgTypes::Client_Accepted ) : {
 		net::message<MsgTypes> outMsg;
 		outMsg.header.id = MsgTypes::Client_RegisterWithServer;
 		myDescription.m_vCoord = { 150, 150 };
 		outMsg << myDescription;
-		Send(outMsg);
+		net::tcp_client<MsgTypes>::Send(outMsg);
 				
 		std::cout << "Client_Accepted " << "\n";
 		break;
@@ -32,18 +46,25 @@ while( !Incoming().empty() ) {
 
 	case(MsgTypes::Client_AssignID) : {
 		// Server is assigning us OUR id
-		inMsg >> m_iMyID;
+		tcp_inMsg >> m_iMyID;
 		myDescription.ID = m_iMyID;
-		//Game::Instance().createMainPlayer(m_iMyID); ++++++++++
 
 		m_sWorldState.PlayerRst.insert_or_assign(m_iMyID, myDescription);
 		std::cout << "Assigned Client ID = " << m_iMyID << "\n";
+
+		net::message<MsgTypes> udpRegisterMsg;
+		udpRegisterMsg.header.id = MsgTypes::Client_RegisterUDP;
+
+		udpRegisterMsg << m_iMyID;
+		net::udp_client<MsgTypes>::Send(udpRegisterMsg);
+
+		std::cout << "Sent UDP registration for ID: " << m_iMyID << "\n";
 		break;
 	}
 
 	case(MsgTypes::Game_AddPlayer) : {
 		PlayerDescription otherDesc;
-		inMsg >> otherDesc;
+		tcp_inMsg >> otherDesc;
 		const auto& ID = otherDesc.ID;
 		if(ID == m_iMyID) break;
 
@@ -62,22 +83,70 @@ while( !Incoming().empty() ) {
 		break;
 	}
 
+	} // switch
+} // while
+
+}
+
+void ClientNetworkSystem::Update_UDP() {
+	auto& udp_inComing = net::udp_client<MsgTypes>::Incoming();
+
+while( !udp_inComing.empty() ) {
+			
+	auto udp_inMsg = !udp_inComing.empty() ? udp_inComing.pop_front().msg : net::message<MsgTypes>();
+
+
+	switch( udp_inMsg.header.id ) { 
+
 	case MsgTypes::Game_WorldUpdate : {
 		m_sWorldState.BotsRst.clear();
 		m_sWorldState.Projectiles.clear();
 		m_sWorldState.PlayerRst.clear();
 
-		UnpackList(inMsg, m_sWorldState.Projectiles);
-		UnpackList(inMsg, m_sWorldState.BotsRst);
-		UnpackList(inMsg, m_sWorldState.PlayerRst);
+		UnpackList(udp_inMsg, m_sWorldState.Projectiles);
+		UnpackList(udp_inMsg, m_sWorldState.BotsRst);
+		UnpackList(udp_inMsg, m_sWorldState.PlayerRst);
 		
 		OnWorldUpdate();
 		break;
 	}
 
-
 	} // switch
 } // while
+
+}
+
+void ClientNetworkSystem::SendPlayerState(const GameSession& seddion) {
+
+	PlayerDescription outdata;
+	outdata.ID = GetMyID();
+	outdata.m_vCoord = seddion.m_xPlayer->Coord();
+	//outdata.HP = player->HP();
+
+	net::message<MsgTypes> msg;
+	msg.header.id = MsgTypes::Game_UpdatePlayer;
+	msg << outdata;
+
+	net::udp_client<MsgTypes>::Send(msg);
+}
+
+void ClientNetworkSystem::SendCommand(Command* comm) {
+	if( auto* rawFireCommand = dynamic_cast<FireCommand*>(comm) ) {
+
+		ProjectileDescription desc;
+		auto pl = rawFireCommand->Object();
+
+		desc.OwnerID = pl->ID();
+		desc.MousePos = rawFireCommand->GetMousePosition();
+		desc.PlayerPos = pl->Coord();
+
+		net::message<MsgTypes> msg;
+		msg.header.id = MsgTypes::Game_AddProjectile;
+		msg << desc;
+			
+		net::tcp_client<MsgTypes>::Send(msg);
+	}
+
 }
 
 void ClientNetworkSystem::OnWorldUpdate() {

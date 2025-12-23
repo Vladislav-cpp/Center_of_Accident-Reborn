@@ -10,6 +10,7 @@ enum class MsgTypes : uint32_t {
 
 	Client_Accepted,
 	Client_RegisterWithServer,
+	Client_RegisterUDP,
 	Client_AssignID,
 
 //	Game_UpdateEnemy,
@@ -52,7 +53,7 @@ struct WorldState {
 template<typename K, typename V>
 inline void PackList(net::message<MsgTypes>& msg, const std::unordered_map<K, V>& map) {
     uint32_t count = static_cast<uint32_t>(map.size());
-    for (const auto& [key, value] : map) {
+    for(const auto& [key, value] : map) {
         msg << key;
         msg << value;
     }
@@ -66,7 +67,7 @@ inline void UnpackList(net::message<MsgTypes>& msg, std::unordered_map<K, V>& ou
 
     uint32_t count = 0;
     msg >> count;
-    for (uint32_t i = 0; i < count; ++i) {
+    for(uint32_t i = 0; i < count; ++i) {
         K key;
         V value;
         msg >> value;
@@ -76,35 +77,25 @@ inline void UnpackList(net::message<MsgTypes>& msg, std::unordered_map<K, V>& ou
 }
 
 template<typename Pool, typename Map>
-void kill_if_not_in_map(Pool& pool, const Map& mp, int ignorID = -1)
-{
-    pool.kill_if([&](const auto& obj)
-    {
+void kill_if_not_in_map(Pool& pool, const Map& mp, int ignorID = -1) {
+    pool.kill_if([&](const auto& obj) {
         uint32_t id = obj->ID();
 
-        // Не видаляти цей ID
-        if(id == ignorID)
-            return false;
+        if(id == ignorID) return false;
 
-        // Якщо ID немає в мапі → видаляємо
         return mp.find(id) == mp.end();
     });
 }
 
 template<typename Vec, typename Map, typename Factory>
-void create_missing(Vec& vec, const Map& mp, Factory factory, int ignorID = -1)
-{
-    for (auto& [id, state] : mp)
-    {
-        // Пропускаємо ID, який не треба створювати
-        if (id == ignorID)
-            continue;
+void create_missing(Vec& vec, const Map& mp, Factory factory, int ignorID = -1) {
+    for(auto& [id, state] : mp) {
+        if(id == ignorID) continue;
 
         auto it = std::find_if(vec.begin(), vec.end(),
             [&](const auto& o){ return o->ID() == id; });
 
-        if (it == vec.end())
-        {
+        if(it == vec.end()) {
             factory(id, state);
         }
     }
@@ -115,15 +106,12 @@ inline void kill_if_not_in_worldstate(utility::ObjectPool<std::shared_ptr<Static
 	pool.kill_if([&](const auto& obj){
 		uint32_t id = obj->ID();
 
-		// Локальний гравець ніколи не видаляємо
 		if(id == ignorID) return false;
 
-		// Якщо ID є в будь-якій з трьох мап → залишаємо
 		if(ws.PlayerRst.find(id) != ws.PlayerRst.end()) return false;
 		if(ws.BotsRst.find(id) != ws.BotsRst.end()) return false;
 		if(ws.Projectiles.find(id) != ws.Projectiles.end()) return false;
 
-		// Інакше → видаляємо
 		return true;
 	});
 }
