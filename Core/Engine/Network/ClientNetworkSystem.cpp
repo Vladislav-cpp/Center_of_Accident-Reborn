@@ -49,7 +49,7 @@ while( !tcp_inComing.empty() ) {
 		tcp_inMsg >> m_iMyID;
 		myDescription.ID = m_iMyID;
 
-		m_sWorldState.PlayerRst.insert_or_assign(m_iMyID, myDescription);
+		//m_sWorldState.PlayerRst.insert_or_assign(m_iMyID, myDescription);
 		std::cout << "Assigned Client ID = " << m_iMyID << "\n";
 
 		net::message<MsgTypes> udpRegisterMsg;
@@ -68,9 +68,9 @@ while( !tcp_inComing.empty() ) {
 		const auto& ID = otherDesc.ID;
 		if(ID == m_iMyID) break;
 
-		auto [it, inserted] = m_sWorldState.PlayerRst.insert_or_assign(ID, otherDesc);
+		//auto [it, inserted] = m_sWorldState.PlayerRst.insert_or_assign(ID, otherDesc);
 
-		if (m_existingPlayerIDs.find(ID) == m_existingPlayerIDs.end()) {
+		if(m_existingPlayerIDs.find(ID) == m_existingPlayerIDs.end()) {
 			m_existingPlayerIDs.insert(ID);
 
 			auto pl = CharacterFactory::Instance().CreateHumanPlayer<StaticStatsUfo>(-1);
@@ -99,15 +99,25 @@ while( !udp_inComing.empty() ) {
 	switch( udp_inMsg.header.id ) { 
 
 	case MsgTypes::Game_WorldUpdate : {
-		m_sWorldState.BotsRst.clear();
-		m_sWorldState.Projectiles.clear();
-		m_sWorldState.PlayerRst.clear();
+		WorldSnapshot newSnapshot;
 
-		UnpackList(udp_inMsg, m_sWorldState.Projectiles);
-		UnpackList(udp_inMsg, m_sWorldState.BotsRst);
-		UnpackList(udp_inMsg, m_sWorldState.PlayerRst);
+		//m_sWorldState.BotsRst.clear();
+		//m_sWorldState.Projectiles.clear();
+		//m_sWorldState.PlayerRst.clear();
+
+		udp_inMsg >> newSnapshot.ServerTick;
+
+		UnpackList(udp_inMsg, newSnapshot.WState.Projectiles);
+		UnpackList(udp_inMsg, newSnapshot.WState.BotsRst);
+		UnpackList(udp_inMsg, newSnapshot.WState.PlayerRst);
+
+
+		m_snapshotBuffer.push_back(newSnapshot);
+
+		if(m_snapshotBuffer.size() > MAX_BUFFER_SIZE) {
+			m_snapshotBuffer.pop_front();
+		}
 		
-		OnWorldUpdate();
 		break;
 	}
 
@@ -149,20 +159,124 @@ void ClientNetworkSystem::SendCommand(Command* comm) {
 
 }
 
-void ClientNetworkSystem::OnWorldUpdate() {
+void ClientNetworkSystem::UpdateInterpolation(float dt) {
+if (m_snapshotBuffer.size() < 2) return;
+
+    // 1. Оновлюємо внутрішній час клієнта
+    // Ми хочемо показувати стан, який був 100мс тому
+    m_fCurrentInterpolationTime += dt;
+
+    // Встановлюємо цільовий тік для рендерингу
+    // Наприклад: останній отриманий тік мінус затримка
+    float targetTick = (float)m_snapshotBuffer.back().ServerTick - (m_fInterpolationDelay * 60.0f);
+
+    // 2. Шукаємо два знімки, між якими потрапляє targetTick
+    WorldSnapshot* pA = nullptr;
+    WorldSnapshot* pB = nullptr;
+
+    for (size_t i = 0; i < m_snapshotBuffer.size() - 1; ++i) {
+        if (targetTick >= m_snapshotBuffer[i].ServerTick && targetTick < m_snapshotBuffer[i+1].ServerTick) {
+            pA = &m_snapshotBuffer[i];
+            pB = &m_snapshotBuffer[i+1];
+            break;
+        }
+    }
+
+    if (pA && pB) {
+        // 3. Рахуємо коефіцієнт інтерполяції (t від 0 до 1)
+        float t = (targetTick - (float)pA->ServerTick) / ((float)pB->ServerTick - (float)pA->ServerTick);
+
+        // 4. Оновлюємо візуальні об'єкти
+        InterpolateEntities(pA->WState, pB->WState, t);
+    }
+}
+
+void ClientNetworkSystem::InterpolateEntities(const WorldState& stateA, const WorldState& stateB, float t) {
+
+	WorldState worldState;
+
+	for(auto& [id, botB] : stateB.BotsRst) {
+		// Шукаємо цього ж бота в знімку A (минуле)
+
+		if( !stateA.BotsRst.contains(id) ) continue;
+
+		PlayerDescription newDesc;
+
+		const auto& botA = stateA.BotsRst.at(id);
+
+		// ЛЕРПИМО ПОЗИЦІЮ!
+		sf::Vector2f interpolatedPos = botA.m_vCoord + t * (botB.m_vCoord - botA.m_vCoord);
+
+		// Оновлюємо візуальний спрайт бота в грі
+
+		newDesc.HP = botB.HP;
+		newDesc.ID = id;
+		newDesc.m_vCoord = interpolatedPos;
+	
+		worldState.BotsRst.insert( {id , newDesc} );
+	}
+
+	for(auto& [id, plB] : stateB.PlayerRst) {
+		// Шукаємо цього ж бота в знімку A (минуле)
+
+		if( !stateA.PlayerRst.contains(id) ) continue;
+
+		PlayerDescription newDesc;
+
+		const auto& plA = stateA.PlayerRst.at(id);
+
+		// ЛЕРПИМО ПОЗИЦІЮ!
+		sf::Vector2f interpolatedPos = plA.m_vCoord + t * (plB.m_vCoord - plA.m_vCoord);
+
+		// Оновлюємо візуальний спрайт бота в грі
+
+		newDesc.HP = plB.HP;
+		newDesc.ID = id;
+		newDesc.m_vCoord = interpolatedPos;
+	
+		worldState.PlayerRst.insert( {id , newDesc} );
+	}
+
+	for(auto& [id, pjB] : stateB.Projectiles) {
+		// Шукаємо цього ж бота в знімку A (минуле)
+
+		if( !stateA.Projectiles.contains(id) ) continue;
+
+		ProjectileDescription newDesc;
+
+		const auto& pjA = stateA.Projectiles.at(id);
+
+		// ЛЕРПИМО ПОЗИЦІЮ!
+		sf::Vector2f interpolatedPos = pjA.m_vCoord + t * (pjB.m_vCoord - pjA.m_vCoord);
+
+		// Оновлюємо візуальний спрайт бота в грі
+
+		newDesc.OwnerID = pjB.OwnerID;
+		newDesc.ID = id;
+		newDesc.Angle = pjB.Angle;
+		newDesc.m_vCoord = interpolatedPos;
+	
+		worldState.Projectiles.insert( {id , newDesc} );
+	}
+
+	WorldUpdate(worldState);
+	
+}
+
+void ClientNetworkSystem::WorldUpdate(const WorldState& worldState) {
 	//if(player==nullptr) return;
 
 	// === 1. Видаляємо об’єкти, яких нема в мапах ===
-	kill_if_not_in_worldstate( WAllObjects(), m_sWorldState, m_iMyID );
+	kill_if_not_in_worldstate( WAllObjects(), worldState, m_iMyID );
 
-	kill_if_not_in_map( WAIPlayers(), m_sWorldState.BotsRst );
-	kill_if_not_in_map( WProjectiles(), m_sWorldState.Projectiles );
+	kill_if_not_in_map( WAIPlayers(), worldState.BotsRst );
+	kill_if_not_in_map( WProjectiles(), worldState.Projectiles );
 
 
 	// === 2. Оновлюємо координати існуючих ===
 
 	// Гравці
-	for(auto& [id, st] : m_sWorldState.PlayerRst) {	
+	for(auto& [id, st] : worldState.PlayerRst) {	
 
 		auto it = std::find_if(WHumanPlayers().begin(), WHumanPlayers().end(),
 			[&](const auto& o){ return o->ID() == id; });
@@ -177,7 +291,7 @@ void ClientNetworkSystem::OnWorldUpdate() {
 	}
 
 	// Боти
-	for (auto& [id, st] : m_sWorldState.BotsRst) {
+	for (auto& [id, st] : worldState.BotsRst) {
 		auto it = std::find_if(WAIPlayers().begin(), WAIPlayers().end(),
 			[&](const auto& o){ return o->ID() == id; });
 
@@ -189,7 +303,7 @@ void ClientNetworkSystem::OnWorldUpdate() {
 	}
 
 	// пулі
-	for (auto& [id, st] : m_sWorldState.Projectiles)
+	for (auto& [id, st] : worldState.Projectiles)
 	{
 		auto it = std::find_if(WProjectiles().begin(), WProjectiles().end(),
 			[&](const auto& o){ return o->ID() == id; });
@@ -205,7 +319,7 @@ void ClientNetworkSystem::OnWorldUpdate() {
 	// === 3. Створюємо ті, яких не було ===
 	create_missing(
 		WAIPlayers(),
-		m_sWorldState.BotsRst,
+		worldState.BotsRst,
 		[&](int id, const auto& st){
 			auto obj = CharacterFactory::Instance().CreateAIPlayer<StaticStatsDust>();
 			obj->SetCoord(st.m_vCoord);
@@ -217,7 +331,7 @@ void ClientNetworkSystem::OnWorldUpdate() {
 
 	create_missing(
 		WHumanPlayers(),
-		m_sWorldState.PlayerRst,
+		worldState.PlayerRst,
 		[&](int id, const auto& st){
 			auto obj = CharacterFactory::Instance().CreateHumanPlayer<StaticStatsUfo>(-1);
 			obj->SetCoord(st.m_vCoord);
@@ -230,7 +344,7 @@ void ClientNetworkSystem::OnWorldUpdate() {
 
 	create_missing(
 		WProjectiles(),
-		m_sWorldState.Projectiles,
+		worldState.Projectiles,
 		[&](int id, const auto& st){
 			auto obj = CharacterFactory::Instance().CreateAIPlayer<StaticStatsProjectile, Projectile>(-1, sf::Vector2f{0, 0}, sf::Vector2f{0, 0});
 			obj->SetCoord(st.m_vCoord);

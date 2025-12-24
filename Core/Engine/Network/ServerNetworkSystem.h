@@ -23,14 +23,21 @@ class ServerNetworkSystem : public net::tcp_server<MsgTypes>, public net::udp_se
 		udp_server::Stop();
 	}
 
-	void Update(size_t nMaxMessages = -1, bool bWait = false) {
+	void Update(size_t nMaxMessages = -1, bool bWait = false) {	
 		tcp_server::Update(nMaxMessages, bWait);
 		udp_server::Update(nMaxMessages, bWait);
 	}
 
+	void OnTick() {
+		++m_ServerTick;
+	}
+
 	WorldState m_sWorldState;
 	uint32_t m_uProjID = 1100;
-//	std::vector<uint32_t> m_vGarbageIDs;
+	uint32_t m_ServerTick = 0;
+
+	std::mutex m_muxGarbage;
+	std::vector<int> m_vGarbageIDs;
 
 	virtual bool OnClientConnect(std::shared_ptr<net::tcp—onnection<MsgTypes>> client) override { 
 		net::message<MsgTypes> msgAddOtherPlayers;
@@ -40,6 +47,11 @@ class ServerNetworkSystem : public net::tcp_server<MsgTypes>, public net::udp_se
 		std::cout << "OnClientConnect " << std::endl; 
 
 		return true; 
+	}
+
+	virtual void OnClientDisconnect(std::shared_ptr<net::tcp—onnection<MsgTypes>> client) override {
+		std::lock_guard<std::mutex> lock(m_muxGarbage);
+		m_vGarbageIDs.push_back( client->GetID() );
 	}
 
 	// udp and tcp 
@@ -158,13 +170,14 @@ class ServerNetworkSystem : public net::tcp_server<MsgTypes>, public net::udp_se
 
 		net::message<MsgTypes> msg;
 		msg.header.id = MsgTypes::Game_WorldUpdate;
-
-		
+	
 		// if( !m_sWorldState.PlayerRst.empty() ) std::cout<< "BroadcastWorld Coord " << m_sWorldState.PlayerRst.begin()->second.m_vCoord.x << " - " << m_sWorldState.PlayerRst.begin()->second.m_vCoord.y << std::endl;
 		PackList(msg, m_sWorldState.PlayerRst);
 		PackList(msg, m_sWorldState.BotsRst);
 		PackList(msg, m_sWorldState.Projectiles);
 		//if(m_sWorldState.Projectiles.size()>0) std::cout << "m_sWorldState.Projectiles.size()>0 - " <<  m_sWorldState.Projectiles.size() << std::endl;
+
+		msg << m_ServerTick;
 
 		net::udp_server<MsgTypes>::MessageAll(msg);
 
@@ -234,6 +247,20 @@ class ServerNetworkSystem : public net::tcp_server<MsgTypes>, public net::udp_se
 		// ------------------------------------------
 		// 3. «‡ÌÓ‚Ó Á‡ÔÓ‚ÌËÚË PlayerRst
 		// ------------------------------------------
+
+		std::vector<int> idsToRemove;
+		{
+			std::lock_guard<std::mutex> lock(m_muxGarbage);
+			if( !m_vGarbageIDs.empty() ) {
+				idsToRemove = std::move(m_vGarbageIDs);
+				m_vGarbageIDs.clear();
+			}
+		}
+
+		if( !idsToRemove.empty() ) {
+			// utility::KillByIDs(WHumanPlayers(), idsToRemove);
+		}
+
 		for(auto& pl : WHumanPlayers()) {
 
 			PlayerDescription desc;

@@ -128,6 +128,8 @@ void ClientGame::ConectToServer() {
 void ClientGame::GameSessionRun(float dt) {
 	m_xNetwork->Update();
 
+	m_xNetwork->UpdateInterpolation(dt);
+
 	SendPlayerActivities(dt);
 
 	ActionHandler::Instance().Clean();

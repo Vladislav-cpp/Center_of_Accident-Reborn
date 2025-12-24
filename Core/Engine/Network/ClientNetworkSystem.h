@@ -21,13 +21,24 @@ class ClientNetworkSystem : public net::tcp_client<MsgTypes>, public net::udp_cl
 	void SendPlayerState(const GameSession& seddion);
 	void SendCommand(Command* comm);
 
+	void UpdateInterpolation(float dt);
+
 	private:
-	void OnWorldUpdate();
+	void InterpolateEntities(const WorldState& stateA, const WorldState& stateB, float t);
+	void WorldUpdate(const WorldState& worldState);
 
 	private:
 	PlayerDescription myDescription;
 	uint32_t m_iMyID = 0;
 	
-	WorldState m_sWorldState;
+	private:
+	std::deque<WorldSnapshot> m_snapshotBuffer;
+	const size_t MAX_BUFFER_SIZE = 30;
+
+	private:
 	std::unordered_set<int> m_existingPlayerIDs;
+
+	private:
+	float m_fCurrentInterpolationTime = 0.0f; 
+	const float m_fInterpolationDelay = 0.1f; // Затримка 100 мс (6 тіків при 60Гц)
 };

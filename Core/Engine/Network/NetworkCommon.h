@@ -49,6 +49,12 @@ struct WorldState {
 	std::unordered_map<uint32_t, ProjectileDescription> Projectiles;
 };
 
+
+struct WorldSnapshot {
+	uint32_t ServerTick;
+	WorldState WState;
+};
+
 // Для unordered_map
 template<typename K, typename V>
 inline void PackList(net::message<MsgTypes>& msg, const std::unordered_map<K, V>& map) {

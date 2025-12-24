@@ -42,7 +42,8 @@ void ServerGame::Run() {
 
 	m_xSpawner->AddSpawnPoint(p);
 
-	GameTimer netRate(0.033);
+	GameTimer tickTimer(0.0166); // Ëîã³êà òà Ò³ê (60 Ãö)
+	GameTimer netRate(0.033); // 30 Ãö
 
 	while(true) {
 
@@ -51,16 +52,21 @@ void ServerGame::Run() {
 
 		m_xNetwork->Update(-1);
 
-		if( !WHumanPlayers().empty() ) m_xSpawner->Update();
+		if( tickTimer.IsFinished() ) {
 
-		for( auto& ai : WAIPlayers() ) for( auto& comand : ai->GetController()->GenerateCommands(dt) ) comand->Execute();
-		for( auto& ai : WProjectiles() ) for( auto& comand : ai->GetController()->GenerateCommands(dt) ) comand->Execute();
+			m_xNetwork->OnTick();
 
-		CollSys().UpdateCollisions();
+			if( !WHumanPlayers().empty() ) m_xSpawner->Update();
 
-		CleanupDestroyedObjects();
+			for( auto& ai : WAIPlayers() ) for( auto& comand : ai->GetController()->GenerateCommands(dt) ) comand->Execute();
+			for( auto& ai : WProjectiles() ) for( auto& comand : ai->GetController()->GenerateCommands(dt) ) comand->Execute();
 
-		m_xNetwork->OnSyncWorldState();
+			CollSys().UpdateCollisions();
+
+			CleanupDestroyedObjects();
+
+			m_xNetwork->OnSyncWorldState();
+		}
 
 		if( netRate.IsFinished() ) {
 			netRate.Restart();
