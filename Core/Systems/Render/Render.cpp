@@ -20,7 +20,7 @@ void Render::DrawWorld( float time, bool drawDebug) {
 	for(const auto& ob : WAllObjects()) {
 		ob->Draw(window, time);
 
-		utility::DrawDebug( window, ob->GetUI()->GetSprite(), ob->GetStaticStats() );
+		//utility::DrawDebug( window, ob->GetUI()->GetSprite(), ob->GetStaticStats() );
 	}
 
 	//window.display();

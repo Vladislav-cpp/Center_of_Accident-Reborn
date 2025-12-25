@@ -32,4 +32,16 @@
 		m_vSpriteScale={0.2, 0.2}
 		m_vFrameOffset={29, 46}
 	/>
+	
+	<UIElement
+		NodeName="shield3"
+		m_sTextureFile="Resources/images/shield3.png"
+		m_fAnimationSpeed=4
+		m_vProportions={284, 284}
+		m_iNumberFrames=11
+		m_iDistanceAnimation=340
+		m_vSpriteOrigin={142, 142}
+		m_vSpriteScale={0.38, 0.38}
+		m_vFrameOffset={28, 28}
+	/>
 </UI>

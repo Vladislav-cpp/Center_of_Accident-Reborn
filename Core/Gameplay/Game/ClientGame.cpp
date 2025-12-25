@@ -57,26 +57,48 @@ ClientGame::~ClientGame() {
 }
 
 void ClientGame::Run() {
-/* // test
 
+/* // for test // without network
 	GameTime ttglobalTime;
-	myPlayer = CharacterFactory::Instance().CreateHumanPlayer<StaticStatsUfo>();
+	m_xSession.m_xPlayer = CharacterFactory::Instance().CreateHumanPlayer<StaticStatsUfo>();
+
+	auto objects = reflection::Ref.m_xUI_Objects;
+
+	auto it = std::find_if(objects.begin(), objects.end(),
+		[&](const auto& p) { return  p.second == "shield3"; });
+
+	if( it == objects.end() ) {
+		std::cerr << "Reflection error: object is not a UIElement!\n";
+		return;
+	}
+
+	if( UIElement* uiElem = reinterpret_cast<UIElement*>( it->first ) ) m_xSession.m_xPlayer->AddUI( uiElem->Clone() );
+	else std::cerr << "Reflection error: object is not a UIElement!\n";
+
+	m_xScreens->Push( std::make_unique<GameScreen>(*m_xWindow, *m_xScreens) );
+	auto* screen = m_xScreens->Current();
+
 	while(true) {
 
 		ttglobalTime.Update();
 		float dt = ttglobalTime.Delta();
 
-		const auto& commands = myPlayer->GetController()->GenerateCommands(dt);
+		const auto& commands = m_xSession.m_xPlayer->GetController()->GenerateCommands(dt);
 		for(const auto& com : commands) com->Execute();
 
 		for(auto& pl : WProjectiles()) for(auto& cm : pl->GetController()->GenerateCommands(dt)) cm->Execute();
 
 		//view.setCenter( utility::ClampToMap(myPlayer->Coord(), CFG().windowWidth, CFG().windowHeight, CFG().mapWidth, CFG().mapHeight) );
 		ActionHandler::Instance().Clean();
+		m_xWindow->clear();
+		if( screen ) screen->Render(dt);
 		m_xRender->DrawWorld(dt, true);
+
+		m_xWindow->display();
 	}
 	return;
 */
+
 	m_xScreens->Push( std::make_unique<MainMenuScreen>(*m_xWindow, *m_xScreens) );
 
 	GameTime globalTime;
@@ -130,10 +152,18 @@ void ClientGame::GameSessionRun(float dt) {
 
 	m_xNetwork->UpdateInterpolation(dt);
 
+	if(m_xSession.m_xPlayer->HP() == 0 ) ResurrectPlayer();
+
 	SendPlayerActivities(dt);
 
 	ActionHandler::Instance().Clean();
 	m_xRender->DrawWorld(dt, true);
+}
+
+void ClientGame::ResurrectPlayer() {
+
+	m_xSession.m_xPlayer->SetCoord( {350, 350} );
+	m_xNetwork->SendResurrectPlayer(m_xSession);
 }
 
 void ClientGame::SendPlayerActivities(float dt) {

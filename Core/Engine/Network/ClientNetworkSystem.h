@@ -19,6 +19,7 @@ class ClientNetworkSystem : public net::tcp_client<MsgTypes>, public net::udp_cl
 
 	public:
 	void SendPlayerState(const GameSession& seddion);
+	void SendResurrectPlayer(const GameSession& seddion);
 	void SendCommand(Command* comm);
 
 	void UpdateInterpolation(float dt);

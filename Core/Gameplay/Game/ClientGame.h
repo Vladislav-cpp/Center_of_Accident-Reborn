@@ -19,7 +19,7 @@ class ClientGame {
 
 	private:
 	void GameSessionRun(float dt);
-
+	void ResurrectPlayer();
 	private:
 	void SendPlayerActivities(float dt);
 

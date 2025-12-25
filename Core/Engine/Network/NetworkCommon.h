@@ -19,6 +19,7 @@ enum class MsgTypes : uint32_t {
 	Game_AddProjectile,
 
 	Game_UpdatePlayer,
+	Game_ResurrectPlayer,
 	Game_RemovePlayer,
 	Game_AddPlayer,
 };

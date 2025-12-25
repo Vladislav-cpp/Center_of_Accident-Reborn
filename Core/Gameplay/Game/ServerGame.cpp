@@ -56,7 +56,7 @@ void ServerGame::Run() {
 
 			m_xNetwork->OnTick();
 
-			if( !WHumanPlayers().empty() ) m_xSpawner->Update();
+			//if( !WHumanPlayers().empty() ) m_xSpawner->Update();
 
 			for( auto& ai : WAIPlayers() ) for( auto& comand : ai->GetController()->GenerateCommands(dt) ) comand->Execute();
 			for( auto& ai : WProjectiles() ) for( auto& comand : ai->GetController()->GenerateCommands(dt) ) comand->Execute();
@@ -84,6 +84,8 @@ void ServerGame::CleanupDestroyedObjects() {
 
 	WAllObjects().kill_if([](const auto& ob){ 
 		auto dOb = std::dynamic_pointer_cast<DestructibleObject>(ob);
-		return dOb != nullptr && dOb->HP() == 0;
+		auto pl = std::dynamic_pointer_cast<PlayerCharacter>(ob);
+
+		return pl == nullptr && dOb != nullptr && dOb->HP() == 0;
 	});
 }

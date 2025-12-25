@@ -140,6 +140,19 @@ void ClientNetworkSystem::SendPlayerState(const GameSession& seddion) {
 	net::udp_client<MsgTypes>::Send(msg);
 }
 
+void ClientNetworkSystem::SendResurrectPlayer(const GameSession& seddion) {
+	PlayerDescription outdata;
+	outdata.ID = GetMyID();
+	outdata.m_vCoord = seddion.m_xPlayer->Coord();
+	outdata.HP = seddion.m_xPlayer->HP();
+
+	net::message<MsgTypes> msg;
+	msg.header.id = MsgTypes::Game_ResurrectPlayer;
+	msg << outdata;
+
+	net::tcp_client<MsgTypes>::Send(msg);
+}
+
 void ClientNetworkSystem::SendCommand(Command* comm) {
 	if( auto* rawFireCommand = dynamic_cast<FireCommand*>(comm) ) {
 

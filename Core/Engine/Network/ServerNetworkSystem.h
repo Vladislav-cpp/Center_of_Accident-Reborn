@@ -100,7 +100,6 @@ class ServerNetworkSystem : public net::tcp_server<MsgTypes>, public net::udp_se
 			break;
 		}
 
-
 		case MsgTypes::Client_RegisterUDP : {
 			std::cout << "Client_RegisterUDP - " ;
 
@@ -109,6 +108,18 @@ class ServerNetworkSystem : public net::tcp_server<MsgTypes>, public net::udp_se
 			std::cout << id << std::endl;
 			udpPtr->SetID(id);
 
+			break;
+		}
+
+		case MsgTypes::Game_ResurrectPlayer : {
+			PlayerDescription desc;
+			msg >> desc;
+			desc.ID = tcpPtr->GetID();
+			if(desc.ID == 0) std::cout << "id = 0\n";
+			m_sWorldState.PlayerRst.insert_or_assign(desc.ID, desc);
+
+			auto pl = OnPlayerDataUpdate(desc.ID);
+			if(pl) pl->SetHP(100);
 			break;
 		}
 
@@ -272,17 +283,19 @@ class ServerNetworkSystem : public net::tcp_server<MsgTypes>, public net::udp_se
 		}
 	}
 
-	void OnPlayerDataUpdate(int id = 0) {
+	std::shared_ptr<PlayerCharacter> OnPlayerDataUpdate(int id = 0) {
 		auto itState = m_sWorldState.PlayerRst.find(id);
-		if( itState == m_sWorldState.PlayerRst.end() ) return;
+		if( itState == m_sWorldState.PlayerRst.end() ) return nullptr;
 
 		for( auto& player : WHumanPlayers() ) {
 
 			if(player->ID() == id) {
 				player->SetCoord(itState->second.m_vCoord);
-				return;
+				return player;
 			}
 		}
+
+		return nullptr;
 
 	}
 
