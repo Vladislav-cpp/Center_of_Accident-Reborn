@@ -7,6 +7,7 @@
 #include "GameTime.h"
 #include "CollisionSystem.h"
 #include "SpawnSystem.h"
+#include "HealthSystem.h"
 
 ServerGame::ServerGame() {	
 	m_xNetwork = new ServerNetworkSystem(60000);
@@ -56,14 +57,13 @@ void ServerGame::Run() {
 
 			m_xNetwork->OnTick();
 
-			//if( !WHumanPlayers().empty() ) m_xSpawner->Update();
+			if( !WHumanPlayers().empty() ) m_xSpawner->Update();
 
 			for( auto& ai : WAIPlayers() ) for( auto& comand : ai->GetController()->GenerateCommands(dt) ) comand->Execute();
 			for( auto& ai : WProjectiles() ) for( auto& comand : ai->GetController()->GenerateCommands(dt) ) comand->Execute();
 
 			CollSys().UpdateCollisions();
-
-			CleanupDestroyedObjects();
+			HealthSys().Update(m_xNetwork);
 
 			m_xNetwork->OnSyncWorldState();
 		}
@@ -74,18 +74,4 @@ void ServerGame::Run() {
 		}
 	}
 
-}
-
-void ServerGame::CleanupDestroyedObjects() {
-	auto IsZeroHP = [](const auto& ob){ return ob->HP() == 0; };
-
-	WAIPlayers().kill_if(IsZeroHP);
-	WProjectiles().kill_if(IsZeroHP);
-
-	WAllObjects().kill_if([](const auto& ob){ 
-		auto dOb = std::dynamic_pointer_cast<DestructibleObject>(ob);
-		auto pl = std::dynamic_pointer_cast<PlayerCharacter>(ob);
-
-		return pl == nullptr && dOb != nullptr && dOb->HP() == 0;
-	});
 }

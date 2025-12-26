@@ -37,6 +37,7 @@ std::shared_ptr<PlayerCharacter> SpawnSystem::FindNearestEnemy(const sf::Vector2
 
 	for( const auto& player : WHumanPlayers() ) {
 
+		if( player->IsInvulnerable() ) continue;
 		auto diff = player->Coord() - pos;
 		float distSq = diff.x * diff.x + diff.y * diff.y;
 

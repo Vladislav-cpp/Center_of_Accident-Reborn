@@ -12,8 +12,8 @@ class DestructibleObject : public StaticObject {
 
 	public:
 	int HP();
-	void SetHP(int hp);
-	void ApplyDamage(int damage);
+	virtual void SetHP(int hp);
+	virtual void ApplyDamage(int damage);
 
 	public:
 	void SubscribeOnHpChange(HpCallback cb);

@@ -1,6 +1,7 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include "ReflectionLib.hpp"
+#include "UIType.h"
 
 class UIElement {
 	REFLECTION_FRIEND;
@@ -21,10 +22,13 @@ class UIElement {
 	public:
 	virtual void Update();
 	virtual void SetCoord(sf::Vector2f position);
+	virtual void ChangeState(UIState newState);
 
 	public:
 	sf::Sprite& GetSprite() { return m_xSprite; }
 	sf::Texture& GetxTexture() { return m_xTexture; }
+	UIType GetType() { return m_xType; }
+	UIState GetState() { return m_xState; }
 
 	protected:
 	float m_fAnimationSpeed = 0.02f;
@@ -42,5 +46,8 @@ class UIElement {
 
 	std::string m_sTextureFile;
 	float m_fCurentFrame = 0;
+
+	UIType m_xType = UIType::Main;
+	UIState m_xState = UIState::Visible;
 };
 

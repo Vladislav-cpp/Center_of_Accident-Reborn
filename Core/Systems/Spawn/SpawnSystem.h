@@ -6,13 +6,13 @@
 class PlayerCharacter;
 
 struct SpawnPoint {
-	sf::Vector2f	m_vPos;
+	sf::Vector2f m_vPos;
 
 	int m_iMaxBots = 0;
 	int m_iSpawned = 0;
 	int m_iBotsPerSpawn = 1;
 
-	GameTimer		m_xSpawnTimer;
+	GameTimer m_xSpawnTimer;
 };
 
 class SpawnSystem {

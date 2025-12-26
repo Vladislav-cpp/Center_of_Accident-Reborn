@@ -12,9 +12,6 @@ class ServerGame {
 	void Run();
 
 	private:
-	void CleanupDestroyedObjects();
-
-	private:
 	ServerNetworkSystem* m_xNetwork;
 	SpawnSystem* m_xSpawner;
 };

@@ -137,6 +137,8 @@ void ClientGame::ConectToServer() {
 	m_xNetwork->Connect("185.30.202.137", 60000);
 	//m_xNetwork->Connect("192.168.1.102", 60000);
 
+	m_xNetwork->SetSession( &m_xSession );
+
 	while( !m_xNetwork->IsConnected() || m_xNetwork->GetMyID()==0 ) {
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 		m_xNetwork->Update();
@@ -152,18 +154,10 @@ void ClientGame::GameSessionRun(float dt) {
 
 	m_xNetwork->UpdateInterpolation(dt);
 
-	if(m_xSession.m_xPlayer->HP() == 0 ) ResurrectPlayer();
-
 	SendPlayerActivities(dt);
 
 	ActionHandler::Instance().Clean();
 	m_xRender->DrawWorld(dt, true);
-}
-
-void ClientGame::ResurrectPlayer() {
-
-	m_xSession.m_xPlayer->SetCoord( {350, 350} );
-	m_xNetwork->SendResurrectPlayer(m_xSession);
 }
 
 void ClientGame::SendPlayerActivities(float dt) {
@@ -184,5 +178,5 @@ void ClientGame::SendPlayerActivities(float dt) {
 
 	}
 
-	m_xNetwork->SendPlayerState(m_xSession);
+	if( !commands.empty() ) m_xNetwork->SendPlayerState();
 }

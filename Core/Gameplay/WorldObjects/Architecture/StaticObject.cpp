@@ -19,10 +19,19 @@ void StaticObject::SetID(int id) {
 	m_iID = id;
 }
 
-void StaticObject::AddUI(UIElement* uiElement) {
-	m_vUIViews.push_back( uiElement );
+void StaticObject::AddUI(UIType type, UIElement* uiElement) {
+	m_vUIViews[type] = uiElement;
 
 	uiElement->Update();
+}
+
+void StaticObject::ChangeUIState(UIState newState) {
+	for(auto const& [type, view] : m_vUIViews) view->ChangeState(newState);
+}
+
+void StaticObject::ChangeUIState(UIType type, UIState newState) {
+	if(auto& ui = m_vUIViews.at(type)) ui->ChangeState(newState);
+	else std::cout << "UIType missing" << std::endl;
 }
 
 void StaticObject::SetController(std::unique_ptr<IPlayerController> controller) {
@@ -32,11 +41,16 @@ void StaticObject::SetController(std::unique_ptr<IPlayerController> controller) 
 
 
 void StaticObject::UpdateViewCoord() {
-	for(const auto& view : m_vUIViews) view->SetCoord(m_vCoord);
+	for(auto const& [type, view] : m_vUIViews) view->SetCoord(m_vCoord);
+}
+
+UIElement* StaticObject::GetUI(UIType type){
+	auto it = m_vUIViews.find(type);
+	return (it != m_vUIViews.end()) ? it->second : nullptr;
 }
 
 const void StaticObject::Draw(sf::RenderWindow& window, float time) {
-	for(const auto& view : m_vUIViews) view->Draw(window, time);
+	for(auto const& [type, view] : m_vUIViews) view->Draw(window, time);
 }
 
 void StaticObject::OnCoordChange() {

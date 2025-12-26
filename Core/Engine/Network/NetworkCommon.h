@@ -19,9 +19,10 @@ enum class MsgTypes : uint32_t {
 	Game_AddProjectile,
 
 	Game_UpdatePlayer,
-	Game_ResurrectPlayer,
+	Game_ResurrectPlayer, // 	Game_StartInvulnerable,
 	Game_RemovePlayer,
 	Game_AddPlayer,
+	Game_EndtInvulnerable,
 };
 
 struct PlayerDescription {

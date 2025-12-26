@@ -8,6 +8,7 @@
         m_iDistanceAnimation=100
 		m_vSpriteOrigin={48, 48}
 		m_vFrameOffset={2, 2}
+		m_xType="Main"
     />
 
 	<UIElement
@@ -19,6 +20,7 @@
 		m_iDistanceAnimation=151
 		m_vSpriteOrigin={75, 75}
 		m_vSpriteScale={0.5, 0.5}
+		m_xType="Main"
 	/>
 
 	<UIElement
@@ -31,6 +33,7 @@
 		m_vSpriteOrigin={0, 23}
 		m_vSpriteScale={0.2, 0.2}
 		m_vFrameOffset={29, 46}
+		m_xType="Main"
 	/>
 	
 	<UIElement
@@ -43,5 +46,6 @@
 		m_vSpriteOrigin={142, 142}
 		m_vSpriteScale={0.38, 0.38}
 		m_vFrameOffset={28, 28}
+		m_xType="Shield"
 	/>
 </UI>

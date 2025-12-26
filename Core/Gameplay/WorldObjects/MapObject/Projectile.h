@@ -23,8 +23,8 @@ class Projectile : public AICharacter {
 		m_fAngle = atan2(deltaY, deltaX) * 180.0f / std::numbers::pi;
 	}
 
-	virtual void AddUI(UIElement* uiElement) override {
-		AICharacter::AddUI(uiElement);
+	virtual void AddUI(UIType type, UIElement* uiElement) override {
+		AICharacter::AddUI(type, uiElement);
 		SetRotate(m_fAngle);
 	};
 

@@ -111,18 +111,6 @@ class ServerNetworkSystem : public net::tcp_server<MsgTypes>, public net::udp_se
 			break;
 		}
 
-		case MsgTypes::Game_ResurrectPlayer : {
-			PlayerDescription desc;
-			msg >> desc;
-			desc.ID = tcpPtr->GetID();
-			if(desc.ID == 0) std::cout << "id = 0\n";
-			m_sWorldState.PlayerRst.insert_or_assign(desc.ID, desc);
-
-			auto pl = OnPlayerDataUpdate(desc.ID);
-			if(pl) pl->SetHP(100);
-			break;
-		}
-
 		case MsgTypes::Game_UpdatePlayer :
 		{
 			// Simply bounce update to everyone except incoming client
@@ -298,6 +286,27 @@ class ServerNetworkSystem : public net::tcp_server<MsgTypes>, public net::udp_se
 		return nullptr;
 
 	}
+
+	void SendResurrectPlayer(std::shared_ptr<PlayerCharacter> pl) {
+		PlayerDescription outdata;
+		outdata.ID = pl->ID();
+		outdata.m_vCoord = pl->Coord();
+		outdata.HP = pl->HP();
+
+		net::message<MsgTypes> msg;
+		msg.header.id = MsgTypes::Game_ResurrectPlayer;
+		msg << outdata;
+
+		net::tcp_server<MsgTypes>::MessageClient(pl->ID(), msg);
+	}
+
+	void SendEndInvulnerablePlayer(std::shared_ptr<PlayerCharacter> pl) {
+		net::message<MsgTypes> msg;
+		msg.header.id = MsgTypes::Game_EndtInvulnerable;
+
+		net::tcp_server<MsgTypes>::MessageClient(pl->ID(), msg);
+	}
+
 
 };
 

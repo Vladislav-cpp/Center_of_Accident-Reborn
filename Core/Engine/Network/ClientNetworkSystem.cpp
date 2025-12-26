@@ -23,6 +23,9 @@ void ClientNetworkSystem::Update() {
 	Update_TCP();
 	Update_UDP();
 }
+void ClientNetworkSystem::SetSession(const GameSession* session) {
+	m_pSession = session;
+}
 
 void ClientNetworkSystem::Update_TCP() {
 	auto& tcp_inComing = net::tcp_client<MsgTypes>::Incoming();
@@ -83,6 +86,25 @@ while( !tcp_inComing.empty() ) {
 		break;
 	}
 
+	case(MsgTypes::Game_ResurrectPlayer) : {
+		PlayerDescription desc;
+		tcp_inMsg >> desc;
+
+		auto pl = m_pSession->m_xPlayer;
+		pl->SetHP( desc.HP );
+		pl->SetCoord( desc.m_vCoord );
+		pl->ChangeUIState(UIType::Shield, UIState::Visible);
+
+		break;
+	}
+
+	case(MsgTypes::Game_EndtInvulnerable) : {
+
+		m_pSession->m_xPlayer->ChangeUIState(UIType::Shield, UIState::Hidden);
+
+		break;
+	}
+
 	} // switch
 } // while
 
@@ -126,11 +148,11 @@ while( !udp_inComing.empty() ) {
 
 }
 
-void ClientNetworkSystem::SendPlayerState(const GameSession& seddion) {
+void ClientNetworkSystem::SendPlayerState() {
 
 	PlayerDescription outdata;
 	outdata.ID = GetMyID();
-	outdata.m_vCoord = seddion.m_xPlayer->Coord();
+	outdata.m_vCoord = m_pSession->m_xPlayer->Coord();
 	//outdata.HP = player->HP();
 
 	net::message<MsgTypes> msg;
@@ -138,19 +160,6 @@ void ClientNetworkSystem::SendPlayerState(const GameSession& seddion) {
 	msg << outdata;
 
 	net::udp_client<MsgTypes>::Send(msg);
-}
-
-void ClientNetworkSystem::SendResurrectPlayer(const GameSession& seddion) {
-	PlayerDescription outdata;
-	outdata.ID = GetMyID();
-	outdata.m_vCoord = seddion.m_xPlayer->Coord();
-	outdata.HP = seddion.m_xPlayer->HP();
-
-	net::message<MsgTypes> msg;
-	msg.header.id = MsgTypes::Game_ResurrectPlayer;
-	msg << outdata;
-
-	net::tcp_client<MsgTypes>::Send(msg);
 }
 
 void ClientNetworkSystem::SendCommand(Command* comm) {

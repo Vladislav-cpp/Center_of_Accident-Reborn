@@ -18,7 +18,7 @@ void CharacterFactory::CustomStep(std::shared_ptr<StaticObject> object, IStaticS
 		return;
 	}
 
-	if( UIElement* uiElem = reinterpret_cast<UIElement*>( it->first ) ) object->AddUI( uiElem->Clone() );
+	if( UIElement* uiElem = reinterpret_cast<UIElement*>( it->first ) ) object->AddUI( uiElem->GetType(), uiElem->Clone() );
 	else std::cerr << "Reflection error: object is not a UIElement!\n";
 
 	W().RegisterObject(object);
@@ -36,7 +36,7 @@ void CharacterFactory::CustomStep(std::shared_ptr<StaticObject> object, IStaticS
 	HPLabel* hpLable = new HPLabel();	
 
 	hpLable->InitForObject(object->Coord(), size, dynamicStats.m_iHP);
-	object->AddUI( hpLable );
+	object->AddUI( hpLable->GetType(), hpLable );
 
 	if( auto dOb = std::dynamic_pointer_cast<DestructibleObject>(object) ) dOb->SubscribeOnHpChange( [hpLable](int hp){ hpLable->SetHP(hp); } );
 	else std::cerr << "Reflection error: dynamic_pointer_cast - not DestructibleObject!\n";

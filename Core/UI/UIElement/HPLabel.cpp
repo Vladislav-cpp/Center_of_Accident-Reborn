@@ -5,6 +5,8 @@ HPLabel::HPLabel() {
     m_BackgroundBar.setFillColor(sf::Color(50, 50, 50, 200));
     // HP бар
     m_ForegroundBar.setFillColor(sf::Color(0, 220, 0, 255));
+
+    m_xType = UIType::HealthLabel;
 }
 
 void HPLabel::InitForObject(sf::Vector2f objPos, sf::Vector2f objSize, int maxHp) {

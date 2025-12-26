@@ -15,7 +15,7 @@ GameScreen::GameScreen(sf::RenderWindow& window, ScreenManager& screens) : Scree
 
 
 	// --- MUSIC ---
-	SoundMg().PlayMusic( m_sMusic, true, 70.f );
+	//SoundMg().PlayMusic( m_sMusic, true, 70.f );
 
 	m_pHUD = new MapHUD(m_xScreens.m_xSession.m_xPlayer);
 }

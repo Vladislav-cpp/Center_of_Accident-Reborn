@@ -6,6 +6,7 @@
 #include "NetworkCommon.h"
 
 class GameSession;
+class PlayerCharacter;
 
 class ClientNetworkSystem : public net::tcp_client<MsgTypes>, public net::udp_client<MsgTypes> {
 	public:
@@ -18,8 +19,10 @@ class ClientNetworkSystem : public net::tcp_client<MsgTypes>, public net::udp_cl
 	int GetMyID() { return m_iMyID; };
 
 	public:
-	void SendPlayerState(const GameSession& seddion);
-	void SendResurrectPlayer(const GameSession& seddion);
+	void SetSession(const GameSession* session);
+
+	public:
+	void SendPlayerState();
 	void SendCommand(Command* comm);
 
 	void UpdateInterpolation(float dt);
@@ -31,6 +34,7 @@ class ClientNetworkSystem : public net::tcp_client<MsgTypes>, public net::udp_cl
 	private:
 	PlayerDescription myDescription;
 	uint32_t m_iMyID = 0;
+	const GameSession* m_pSession;
 	
 	private:
 	std::deque<WorldSnapshot> m_snapshotBuffer;

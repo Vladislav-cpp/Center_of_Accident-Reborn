@@ -21,11 +21,14 @@ class StaticObject : public std::enable_shared_from_this<StaticObject> {
 	public:
 	virtual void SetCoord(sf::Vector2f coord);
 	virtual void SetID(int id);
-	virtual void AddUI(UIElement* uiElement);
-	virtual void SetStats(IStaticStatsBase& staticSt ,IDynamicStatsBase& dynamicSt) { 
+	virtual void AddUI(UIType type, UIElement* uiElement);
+	virtual void SetStats(IStaticStatsBase& staticSt, IDynamicStatsBase& dynamicSt) { 
 		m_pStaticStats = staticSt.clone(); 
 		m_pDynamicStats = dynamicSt.clone();
 	}
+	
+	virtual void ChangeUIState(UIState newState);
+	virtual void ChangeUIState(UIType type, UIState newState);
 
 	public:
 	void SetController(std::unique_ptr<IPlayerController> controller);
@@ -37,7 +40,8 @@ class StaticObject : public std::enable_shared_from_this<StaticObject> {
 
 	public:
 	virtual const std::unique_ptr<IStaticStatsBase>& GetPrototpe() { return m_pStaticStats; };
-	virtual UIElement* GetUI() { return m_vUIViews.front(); };
+	virtual UIElement* GetUI() { return GetUI(UIType::Main); };
+	virtual UIElement* GetUI(UIType type);
 	virtual const IStaticStatsBase& GetStaticStats() { return *m_pStaticStats.get(); }
 	virtual const IDynamicStatsBase& GetDynamicStats() { return *m_pDynamicStats.get(); }
 
@@ -53,7 +57,7 @@ class StaticObject : public std::enable_shared_from_this<StaticObject> {
 	protected:
 	std::unique_ptr<IStaticStatsBase> m_pStaticStats{};
 	std::unique_ptr<IDynamicStatsBase> m_pDynamicStats{};
-	std::vector<UIElement*> m_vUIViews;
+	std::unordered_map<UIType, UIElement*> m_vUIViews;
 
 	#define m_iID m_pDynamicStats->m_iID
 	sf::Vector2f m_vCoord{0.f, 0.f};

@@ -66,15 +66,6 @@ target_link_libraries(Center_of_Accident PRIVATE
 )
 
 target_link_libraries(Center_of_Accident PRIVATE
-    #C:/VSProject/SDK/SFML-3.0.0/lib/sfml-graphics-d.lib
-    #C:/VSProject/SDK/SFML-3.0.0/lib/sfml-window-d.lib
-    #C:/VSProject/SDK/SFML-3.0.0/lib/sfml-system-d.lib
-    #C:/VSProject/SDK/SFML-3.0.0/lib/sfml-audio-d.lib
-    #C:/VSProject/SDK/SFML-3.0.0/lib/sfml-graphics-s-d.lib
-    #C:/VSProject/SDK/SFML-3.0.0/lib/sfml-window-s-d.lib
-    #C:/VSProject/SDK/SFML-3.0.0/lib/sfml-system-s-d.lib
-    #C:/VSProject/SDK/SFML-3.0.0/lib/sfml-audio-s-d.lib
-
     # Зовнішні бібліотеки для статичного SFML
     C:/VSProject/SDK/SFML-3.0.0/lib/freetype.lib
     C:/VSProject/SDK/SFML-3.0.0/lib/flac.lib

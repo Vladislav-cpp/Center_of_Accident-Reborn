@@ -22,7 +22,7 @@ MainMenuScreen::MainMenuScreen(sf::RenderWindow& window, ScreenManager& screens)
 
 
 	// --- MUSIC ---
-	SoundMg().PlayMusic( m_sMusicMenu, true, 70.f );
+	//SoundMg().PlayMusic( m_sMusicMenu, true, 70.f );
 
 	// --- CURSOR ---
 	m_xWindow.setMouseCursor(m_xCursor);
@@ -66,7 +66,7 @@ void MainMenuScreen::Render(float dt) {
 }
 
 void MainMenuScreen::OnStart() {
-	SoundMg().StopMusic( m_sMusicMenu );
+	//SoundMg().StopMusic( m_sMusicMenu );
 
 	m_bStartGameRequested = true;
 }
