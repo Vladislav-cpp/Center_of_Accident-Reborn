@@ -11,11 +11,10 @@ class MainMenuScreen : public Screen {
 	public:
 	MainMenuScreen(sf::RenderWindow& window, ScreenManager& screens);
 
-	virtual void HandleEvent(const sf::Event& e) override;
-	virtual void Update(float dt) override;
-	virtual void Render(float dt) override;
+	virtual bool HandleEvent(const sf::Event& e) override;
 
-	bool IsStartGame() { return m_bStartGameRequested; };
+	virtual void Update(float dt) override;
+	virtual void Draw(float dt) override;
 
 	void OnStart();
 
@@ -33,5 +32,4 @@ class MainMenuScreen : public Screen {
 	private:
 	bool m_bHoverStart = false;
 	bool m_bHoverOption = false;
-	bool m_bStartGameRequested = false;
 };

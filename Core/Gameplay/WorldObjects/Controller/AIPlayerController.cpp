@@ -22,6 +22,10 @@ void AIPlayerController::SetEnemyPlayer(const std::shared_ptr<PlayerCharacter>& 
 	player = pl;
 }
 
+std::shared_ptr<PlayerCharacter> AIPlayerController::EnemyPlayer() {
+	return player;
+}
+
 void AIPlayerController::AddBehavior(std::vector<std::shared_ptr<IBehaviorState>>& behaviors) {
 	for(auto& behavior : behaviors) m_vBehaviors.push_back( behavior );
 }

@@ -1,4 +1,4 @@
-#include "ServerGame.h"
+ï»¿#include "ServerGame.h"
 #include "ServerNetworkSystem.h"
 #include "World.h"
 #include "DestructibleObject.h"
@@ -6,17 +6,17 @@
 #include "AIPlayerController.h"
 #include "GameTime.h"
 #include "CollisionSystem.h"
-#include "SpawnSystem.h"
+//#include "SpawnSystem.h"
 #include "HealthSystem.h"
 
 ServerGame::ServerGame() {	
 	m_xNetwork = new ServerNetworkSystem(60000);
-	m_xSpawner = new SpawnSystem();
+	//m_xSpawner = new SpawnSystem();
 }
 
 ServerGame::~ServerGame() {
 	delete m_xNetwork;
-	delete m_xSpawner;
+	//delete m_xSpawner;
 }
 
 
@@ -33,23 +33,23 @@ void ServerGame::Run() {
 	m_xNetwork->Start();
 	
 	uint32_t UniqueBOT_ID = 0;
-	GameTime globalTime;
+	//GameTime globalTime;
 
-	SpawnPoint p;
+	//SpawnPoint p;
 	p.m_vPos = {600 , 600};
 	p.m_iMaxBots = 500;
 	p.m_iBotsPerSpawn = 5;
 	p.m_xSpawnTimer = GameTimer{3};	
 
-	m_xSpawner->AddSpawnPoint(p);
+	//m_xSpawner->AddSpawnPoint(p);
 
-	GameTimer tickTimer(0.0166); // Ëîã³êà òà Ò³ê (60 Ãö)
-	GameTimer netRate(0.033); // 30 Ãö
+	GameTimer tickTimer(0.0166); // Ð›Ð¾Ð³Ñ–ÐºÐ° Ñ‚Ð° Ð¢Ñ–Ðº (60 Ð“Ñ†)
+	GameTimer netRate(0.033); // 30 Ð“Ñ†
 
 	while(true) {
 
-		globalTime.Update();
-		float dt = globalTime.Delta();
+		//globalTime.Update();
+		//float dt = globalTime.Delta();
 
 		m_xNetwork->Update(-1);
 
@@ -57,10 +57,10 @@ void ServerGame::Run() {
 
 			m_xNetwork->OnTick();
 
-			if( !WHumanPlayers().empty() ) m_xSpawner->Update();
+			if( !WHumanPlayers().empty() );// m_xSpawner->Update();
 
-			for( auto& ai : WAIPlayers() ) for( auto& comand : ai->GetController()->GenerateCommands(dt) ) comand->Execute();
-			for( auto& ai : WProjectiles() ) for( auto& comand : ai->GetController()->GenerateCommands(dt) ) comand->Execute();
+			//for( auto& ai : WAIPlayers() ) for( auto& comand : ai->GetController()->GenerateCommands(dt) ) comand->Execute();
+			//for( auto& ai : WProjectiles() ) for( auto& comand : ai->GetController()->GenerateCommands(dt) ) comand->Execute();
 
 			CollSys().UpdateCollisions();
 			HealthSys().Update(m_xNetwork);

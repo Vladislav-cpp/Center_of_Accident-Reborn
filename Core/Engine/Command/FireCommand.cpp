@@ -10,7 +10,7 @@ void FireCommand::Execute() {
 	auto player = dynamic_pointer_cast<PlayerCharacter>(m_pObject);
 	
 	auto action = &ActionHandler::Instance();
-	CharacterFactory::Instance().CreateAIPlayer<StaticStatsProjectile, Projectile>(0, player->Coord(), ActionHandler::Instance().ActionsImput().mousePosition);
+	CharacterFactory::Instance().CreateAIPlayer<StaticStatsProjectile, Projectile>(0, player->Coord(), action->ActionsImput().mousePosition);
 }
 
 void FireCommand::SetMousePosition(sf::Vector2f position) {

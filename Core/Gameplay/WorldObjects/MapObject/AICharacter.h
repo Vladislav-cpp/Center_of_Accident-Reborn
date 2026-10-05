@@ -12,4 +12,9 @@ class AICharacter : public MovableObject {
 		AIPlayerController* aiCtrl = static_cast<AIPlayerController*>(m_pController.get());
 		aiCtrl->SetEnemyPlayer(pl);
 	}
+
+	std::shared_ptr<PlayerCharacter> EnemyPlayer() {
+		AIPlayerController* aiCtrl = static_cast<AIPlayerController*>(m_pController.get());
+		return aiCtrl->EnemyPlayer();
+	}
 };

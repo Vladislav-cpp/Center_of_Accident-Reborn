@@ -9,6 +9,7 @@
 
 std::vector<std::unique_ptr<Command>> FollowPlayerState::GenerateCommands(float dt){
     std::vector<std::unique_ptr<Command>> commands;
+    if(!pl) return commands;
 
     dt *= ai->GetPrototpe()->speedMovement.value();
 

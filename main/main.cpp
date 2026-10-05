@@ -31,8 +31,9 @@ void register_basic_type_parsers() {
     });
 }
 
-#include "ClientGame.h"
+//#include "ClientGame.h"
 #include "ServerGame.h"
+#include "ClientApplication.h"
 
 int main() {
 
@@ -73,6 +74,9 @@ int main() {
     std::cout << "WindowWidth = " << cfg->windowWidth << "\n";
     //auto& Cyber_Game = Game::Instance();
 
+    std::cout << " Press 0 to log in as a client, or press any other key to log in as a server. " << "\n";
+
+
     int id = -1;
     std::cin >> id;
     //if(id == 0) Cyber_Game.RunClient();
@@ -81,7 +85,7 @@ int main() {
 
 
     if(id == 0) {
-        ClientGame* cl = new ClientGame();
+        ClientApplication* cl = new ClientApplication();
         cl->Run();
     } else {
         ServerGame* sr = new ServerGame();
@@ -90,3 +94,5 @@ int main() {
 
     return 0;
 }
+
+// todo зробить іконку що крутиться і показує статус зєднання з сервером, далі зробити кнопку приєднання до сервера / офлайн

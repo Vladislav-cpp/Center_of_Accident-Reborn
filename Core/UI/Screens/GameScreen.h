@@ -9,9 +9,9 @@ class GameScreen : public Screen {
 	GameScreen(sf::RenderWindow& window, ScreenManager& screens);
 	~GameScreen();
 
-	virtual void HandleEvent(const sf::Event& e) override;
+	virtual bool HandleEvent(const sf::Event& e) override;
 	virtual void Update(float dt) override;
-	virtual void Render(float dt) override;
+	virtual void Draw(float dt) override;
 
 	private:
 	UIElement m_uBackground;

@@ -1,7 +1,6 @@
 #include "UIElement.h"
 #include "ReflectionLib.hpp"
 #include <iostream>
-#include <SFML/Graphics.hpp>
 
 
 REFLECT_TYPE( 

@@ -15,7 +15,7 @@ struct SpawnPoint {
 	GameTimer m_xSpawnTimer;
 };
 
-class SpawnSystem {
+class AIManager {
 	public:
 	void Update();
 
@@ -25,6 +25,7 @@ class SpawnSystem {
 
 	private:
 	void SpawnBotAt(SpawnPoint& point);
+	void UpdateTargets();
 	std::shared_ptr<PlayerCharacter> FindNearestEnemy(const sf::Vector2f& pos);
 
 	private:

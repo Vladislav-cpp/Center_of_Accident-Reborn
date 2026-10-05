@@ -14,11 +14,11 @@ class Screen {
 	virtual void OnClose() {}
 
 	public:
-	virtual void HandleEvent(const sf::Event&) = 0;
-	virtual void Render(float dt) = 0;
+	virtual bool HandleEvent(const sf::Event&) = 0;
+	virtual void Draw(float dt = 0) = 0;
 
 	protected:
-	virtual void Update(float dt) = 0;
+	virtual void Update(float dt = 0) = 0;
 
 	protected:
 	sf::RenderWindow& m_xWindow;

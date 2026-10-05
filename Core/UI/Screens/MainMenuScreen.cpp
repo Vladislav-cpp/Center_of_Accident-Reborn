@@ -39,14 +39,22 @@ MainMenuScreen::MainMenuScreen(sf::RenderWindow& window, ScreenManager& screens)
 	m_xWindow.setView(m_xView);
 }
 
-void MainMenuScreen::HandleEvent(const sf::Event& e) {
+bool MainMenuScreen::HandleEvent(const sf::Event& e) {
 	const auto* mouse = e.getIf<sf::Event::MouseButtonPressed>();
-	if( mouse == nullptr || mouse->button != sf::Mouse::Button::Left ) return;
+	if( mouse == nullptr || mouse->button != sf::Mouse::Button::Left ) return false;
 	
 	auto mousePos = sf::Mouse::getPosition(m_xWindow);
 
-	if( sf::IntRect({435, 146}, {191, 49}).contains(mousePos) ) OnStart();
-	else if( sf::IntRect({451, 216}, {159, 49}).contains(mousePos) )  /* OnOption() */;
+	if( sf::IntRect({435, 146}, {191, 49}).contains(mousePos) ) {
+		OnStart();
+		return true;
+
+	} else if( sf::IntRect({451, 216}, {159, 49}).contains(mousePos) )  {
+	/* OnOption() */;
+		return true;
+	}
+
+	return false;
 }
 
 void MainMenuScreen::Update(float) {
@@ -56,7 +64,7 @@ void MainMenuScreen::Update(float) {
 	m_bHoverOption = sf::IntRect({451, 216}, {159, 49}).contains(mousePos);
 }
 
-void MainMenuScreen::Render(float dt) {
+void MainMenuScreen::Draw(float dt) {
 	Update(dt);
 
 	m_uMenu.Draw(m_xWindow);
@@ -68,5 +76,5 @@ void MainMenuScreen::Render(float dt) {
 void MainMenuScreen::OnStart() {
 	//SoundMg().StopMusic( m_sMusicMenu );
 
-	m_bStartGameRequested = true;
+	//ClientGame::SendGameRequest()
 }

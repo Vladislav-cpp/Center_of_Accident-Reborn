@@ -6,6 +6,7 @@
 #include <memory>
 #include "IStats.h"
 #include <functional>
+#include <map>
 
 class StaticObject : public std::enable_shared_from_this<StaticObject> {
 	using CoordCallback = std::function<void(const sf::Vector2f&)>;
@@ -57,7 +58,7 @@ class StaticObject : public std::enable_shared_from_this<StaticObject> {
 	protected:
 	std::unique_ptr<IStaticStatsBase> m_pStaticStats{};
 	std::unique_ptr<IDynamicStatsBase> m_pDynamicStats{};
-	std::unordered_map<UIType, UIElement*> m_vUIViews;
+	std::map<UIType, UIElement*> m_vUIViews;
 
 	#define m_iID m_pDynamicStats->m_iID
 	sf::Vector2f m_vCoord{0.f, 0.f};

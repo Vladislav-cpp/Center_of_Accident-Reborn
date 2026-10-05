@@ -1,4 +1,4 @@
-#include "SpawnSystem.h"
+#include "AIManager.h"
 #include "CharacterFactory.h"
 #include "Config.h"
 #include "StaticStatsDust.h"
@@ -7,7 +7,7 @@
 #include <cmath>
 #include <limits>
 
-void SpawnSystem::Update() {
+void AIManager::Update() {
 	for (auto& point : m_xSpawnPoints) {
 
 		if( point.m_iSpawned >= point.m_iMaxBots || !point.m_xSpawnTimer.IsFinished() ) continue;
@@ -18,9 +18,11 @@ void SpawnSystem::Update() {
 
 		point.m_xSpawnTimer.Restart();
 	}
+
+	UpdateTargets();
 }
 
-void SpawnSystem::SpawnBotAt(SpawnPoint& point) {
+void AIManager::SpawnBotAt(SpawnPoint& point) {
 	++point.m_iSpawned;
 
 	auto bot = CharacterFactory::Instance().CreateAIPlayer<StaticStatsDust>();
@@ -30,7 +32,18 @@ void SpawnSystem::SpawnBotAt(SpawnPoint& point) {
 	if( const auto& nearestPlayer = FindNearestEnemy(bot->Coord()) ) bot->SetEnemyPlayer(nearestPlayer);
 }
 
-std::shared_ptr<PlayerCharacter> SpawnSystem::FindNearestEnemy(const sf::Vector2f& pos) {
+void AIManager::UpdateTargets() {
+	for(auto ai : WAIPlayers()) {
+
+		auto target = ai->EnemyPlayer();
+
+		if( target == nullptr|| target->IsInvulnerable() ) {
+			ai->SetEnemyPlayer( FindNearestEnemy(ai->Coord()) );
+		}
+	}
+}
+
+std::shared_ptr<PlayerCharacter> AIManager::FindNearestEnemy(const sf::Vector2f& pos) {
 
 	std::shared_ptr<PlayerCharacter> nearest = nullptr;
 	float minDistSq = std::numeric_limits<float>::max();

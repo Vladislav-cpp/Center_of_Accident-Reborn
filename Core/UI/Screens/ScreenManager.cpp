@@ -1,12 +1,33 @@
 #include "ScreenManager.h"
 #include "Screen.h"
 
+
 void ScreenManager::Push(std::unique_ptr<Screen> screen) {
 	m_xStack.push_back(std::move(screen));
 }
 
 void ScreenManager::Pop() {
-	if( !m_xStack.empty() ) m_xStack.pop_back();
+
+	if( !m_xStack.empty() ) {
+		m_xStack.pop_back();
+	}
+
+}
+
+bool ScreenManager::HandleEvent(const sf::Event& e) {
+
+	if( auto* screen = Current() ) {
+		return screen->HandleEvent(e);
+	}
+
+	return false;
+}
+
+void ScreenManager::Draw(float dt) {
+
+	if( auto* screen = Current() ) {
+		screen->Draw(dt);
+	}
 }
 
 Screen* ScreenManager::Current() {

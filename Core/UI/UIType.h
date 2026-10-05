@@ -6,7 +6,8 @@
 #define UI_TYPE_LIST(X) \
     X( Main )             \
     X( HealthLabel )      \
-    X( Shield )           
+    X( Shield )           \
+    X( ConnectionState )           
 
 enum class UIType {
 #define AS_ENUM(name) name,

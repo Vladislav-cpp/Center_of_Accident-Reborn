@@ -5,7 +5,7 @@
 #include "utility.h"
 #include "net_all.h"
 
-enum class MsgTypes : uint32_t {
+enum class MsgTypesTEST : uint32_t {
 	Server_GetStatus,
 
 	Client_Accepted,
@@ -24,6 +24,39 @@ enum class MsgTypes : uint32_t {
 	Game_AddPlayer,
 	Game_EndtInvulnerable,
 };
+
+enum class MsgTypes : uint32_t {
+	// ---- Клієнт → Сервер ----
+	
+	C2S_JoinRequest,			// TCP "хочу приєднатись" — коли вирішить клієнт, не автоматично
+	C2S_RegisterUdp,
+
+	C2S_PlayerInput,			// власна позиція/ввід
+	C2S_FireProjectile,			// постріл
+
+	// ---- Сервер → Клієнт ----
+	S2C_ConnectionAccepted,		// TCP · перше після конекту
+	S2C_ServerInfo,				// UDP · періодично, напр. кількість онлайн
+	S2C_JoinAccepted,			// id + увесь початковий ростер, одним пакетом
+
+	S2C_WorldSnapshot,			// позиції/HP/снаряди/щит — 30 Гц, джерело правди
+};
+
+// connection Pipeline 
+//		connect()  
+//		S2C_ConnectionAccepted
+//		
+//		C2S_RegisterUdp
+//		after confirmation
+//		S2C_ServerInfo UDP
+// 
+//		C2S_JoinRequest   1
+//		S2C_JoinAccepted  2 ( C2S_RegisterUDP )
+//
+//		in game
+//		C2S_PlayerInput     UDP щотіку
+//		C2S_FireProjectile  TCP на постріл
+//		S2C_WorldSnapshot   UDP
 
 struct PlayerDescription {
 	public:

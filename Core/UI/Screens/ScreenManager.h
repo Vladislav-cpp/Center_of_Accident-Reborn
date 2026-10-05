@@ -4,6 +4,11 @@
 
 class Screen;
 class GameSession;
+namespace sf {
+	class Event;
+}	
+
+class GameSession;
 
 class ScreenManager {
 	public:
@@ -12,6 +17,10 @@ class ScreenManager {
 	public:
 	void Push(std::unique_ptr<Screen>);
 	void Pop();
+
+	public:
+	void Draw(float dt);
+	bool HandleEvent(const sf::Event& e);
 
 	public:
 	Screen* Current();

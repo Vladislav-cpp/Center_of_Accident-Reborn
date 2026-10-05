@@ -18,12 +18,21 @@ bool ClientNetworkSystem::Connect(const std::string& host, const uint16_t port) 
 }
 
 void ClientNetworkSystem::Update() {
+
+	net::ConnectionState current = GetTcpState();
+	if( current != m_lastKnownTcpState ) {
+		net::ConnectionState old = m_lastKnownTcpState;
+		m_lastKnownTcpState = current;
+
+		if( m_onConnectionStateChanged ) m_onConnectionStateChanged(old, current);
+	}
+
 	if( !IsConnected() ) return;
 
 	Update_TCP();
 	Update_UDP();
 }
-void ClientNetworkSystem::SetSession(const GameSession* session) {
+void ClientNetworkSystem::SetSession(GameSession* session) {
 	m_pSession = session;
 }
 
@@ -36,34 +45,30 @@ while( !tcp_inComing.empty() ) {
 
 	switch( tcp_inMsg.header.id ) { 
 		
-	case( MsgTypes::Client_Accepted ) : {
-		net::message<MsgTypes> outMsg;
-		outMsg.header.id = MsgTypes::Client_RegisterWithServer;
-		myDescription.m_vCoord = { 150, 150 };
-		outMsg << myDescription;
-		net::tcp_client<MsgTypes>::Send(outMsg);
-				
-		std::cout << "Client_Accepted " << "\n";
-		break;
-	}
+	case( MsgTypes::S2C_ConnectionAccepted ) : {
 
-	case(MsgTypes::Client_AssignID) : {
-		// Server is assigning us OUR id
+		// поставити картинку що зєднання з сервером є
+
 		tcp_inMsg >> m_iMyID;
-		myDescription.ID = m_iMyID;
-
-		//m_sWorldState.PlayerRst.insert_or_assign(m_iMyID, myDescription);
-		std::cout << "Assigned Client ID = " << m_iMyID << "\n";
 
 		net::message<MsgTypes> udpRegisterMsg;
-		udpRegisterMsg.header.id = MsgTypes::Client_RegisterUDP;
+		udpRegisterMsg.header.id = MsgTypes::C2S_RegisterUdp;
 
 		udpRegisterMsg << m_iMyID;
 		net::udp_client<MsgTypes>::Send(udpRegisterMsg);
-
-		std::cout << "Sent UDP registration for ID: " << m_iMyID << "\n";
+				
+		std::cout << "S2C_ConnectionAccepted " << "\n";
 		break;
 	}
+
+	case( MsgTypes::S2C_JoinAccepted ) : {
+
+		m_pSession->state = GameState::InGame;
+		std::cout << "S2C_JoinAccepted " << "\n";
+		break;
+	}
+
+/*
 
 	case(MsgTypes::Game_AddPlayer) : {
 		PlayerDescription otherDesc;
@@ -103,7 +108,7 @@ while( !tcp_inComing.empty() ) {
 		m_pSession->m_xPlayer->ChangeUIState(UIType::Shield, UIState::Hidden);
 
 		break;
-	}
+	}*/
 
 	} // switch
 } // while
@@ -120,7 +125,7 @@ while( !udp_inComing.empty() ) {
 
 	switch( udp_inMsg.header.id ) { 
 
-	case MsgTypes::Game_WorldUpdate : {
+	case MsgTypes::S2C_WorldSnapshot : {
 		WorldSnapshot newSnapshot;
 
 		//m_sWorldState.BotsRst.clear();
@@ -129,10 +134,13 @@ while( !udp_inComing.empty() ) {
 
 		udp_inMsg >> newSnapshot.ServerTick;
 
+
 		UnpackList(udp_inMsg, newSnapshot.WState.Projectiles);
 		UnpackList(udp_inMsg, newSnapshot.WState.BotsRst);
 		UnpackList(udp_inMsg, newSnapshot.WState.PlayerRst);
 
+		auto& prst = newSnapshot.WState.PlayerRst;
+		if( !prst.empty() && prst.find(10000)->second.HP == 0 ) __debugbreak();
 
 		m_snapshotBuffer.push_back(newSnapshot);
 
@@ -148,15 +156,22 @@ while( !udp_inComing.empty() ) {
 
 }
 
+void ClientNetworkSystem::SendJoinRequest() {
+	net::message<MsgTypes> msg;
+	msg.header.id = MsgTypes::C2S_JoinRequest;
+
+	net::tcp_client<MsgTypes>::Send(msg);
+}
+
 void ClientNetworkSystem::SendPlayerState() {
 
 	PlayerDescription outdata;
 	outdata.ID = GetMyID();
 	outdata.m_vCoord = m_pSession->m_xPlayer->Coord();
 	//outdata.HP = player->HP();
-
+ 
 	net::message<MsgTypes> msg;
-	msg.header.id = MsgTypes::Game_UpdatePlayer;
+	msg.header.id = MsgTypes::C2S_PlayerInput;
 	msg << outdata;
 
 	net::udp_client<MsgTypes>::Send(msg);
@@ -173,7 +188,7 @@ void ClientNetworkSystem::SendCommand(Command* comm) {
 		desc.PlayerPos = pl->Coord();
 
 		net::message<MsgTypes> msg;
-		msg.header.id = MsgTypes::Game_AddProjectile;
+		msg.header.id = MsgTypes::C2S_FireProjectile;
 		msg << desc;
 			
 		net::tcp_client<MsgTypes>::Send(msg);
@@ -255,6 +270,9 @@ void ClientNetworkSystem::InterpolateEntities(const WorldState& stateA, const Wo
 		newDesc.HP = plB.HP;
 		newDesc.ID = id;
 		newDesc.m_vCoord = interpolatedPos;
+		if(plB.HP==0) {
+			__debugbreak();
+		}
 	
 		worldState.PlayerRst.insert( {id , newDesc} );
 	}
@@ -286,7 +304,7 @@ void ClientNetworkSystem::InterpolateEntities(const WorldState& stateA, const Wo
 }
 
 void ClientNetworkSystem::WorldUpdate(const WorldState& worldState) {
-	//if(player==nullptr) return;
+	//if(player==nullptr) return;a
 
 	// === 1. Видаляємо об’єкти, яких нема в мапах ===
 	kill_if_not_in_worldstate( WAllObjects(), worldState, m_iMyID );
@@ -308,6 +326,7 @@ void ClientNetworkSystem::WorldUpdate(const WorldState& worldState) {
 			(*it)->SetHP(st.HP);
 
 			if(m_iMyID == id) continue;
+			if(id == 0) __debugbreak();
 			(*it)->SetCoord(st.m_vCoord);
 		}
 	}
@@ -330,7 +349,7 @@ void ClientNetworkSystem::WorldUpdate(const WorldState& worldState) {
 		auto it = std::find_if(WProjectiles().begin(), WProjectiles().end(),
 			[&](const auto& o){ return o->ID() == id; });
 
-		if (it != WProjectiles().end())
+		if(it != WProjectiles().end())
 		{
 			(*it)->SetCoord(st.m_vCoord);
 			(*it)->SetRotate(st.Angle);

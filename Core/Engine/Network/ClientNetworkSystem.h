@@ -10,6 +10,9 @@ class PlayerCharacter;
 
 class ClientNetworkSystem : public net::tcp_client<MsgTypes>, public net::udp_client<MsgTypes> {
 	public:
+	using ConnectionStateHandler = std::function<void(net::ConnectionState oldState, net::ConnectionState newState)>;
+
+	public:
 	bool Connect(const std::string& host, const uint16_t port);
 
 	void Update();
@@ -19,7 +22,14 @@ class ClientNetworkSystem : public net::tcp_client<MsgTypes>, public net::udp_cl
 	int GetMyID() { return m_iMyID; };
 
 	public:
-	void SetSession(const GameSession* session);
+	void SetSession(GameSession* session);
+
+	void SetOnConnectionStateChanged(ConnectionStateHandler handler) {
+		m_onConnectionStateChanged = std::move(handler);
+	}
+
+	public:
+	void SendJoinRequest();
 
 	public:
 	void SendPlayerState();
@@ -34,7 +44,7 @@ class ClientNetworkSystem : public net::tcp_client<MsgTypes>, public net::udp_cl
 	private:
 	PlayerDescription myDescription;
 	uint32_t m_iMyID = 0;
-	const GameSession* m_pSession;
+	GameSession * m_pSession;
 	
 	private:
 	std::deque<WorldSnapshot> m_snapshotBuffer;
@@ -42,6 +52,10 @@ class ClientNetworkSystem : public net::tcp_client<MsgTypes>, public net::udp_cl
 
 	private:
 	std::unordered_set<int> m_existingPlayerIDs;
+
+	private:
+	ConnectionStateHandler m_onConnectionStateChanged;
+	net::ConnectionState m_lastKnownTcpState = net::ConnectionState::Idle;
 
 	private:
 	float m_fCurrentInterpolationTime = 0.0f; 

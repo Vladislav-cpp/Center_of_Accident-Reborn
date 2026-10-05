@@ -17,6 +17,7 @@ class AIPlayerController : public IPlayerController {
 	public:
 	void AddBehavior(std::vector<std::shared_ptr<IBehaviorState>>& behaviors);
 	void SetEnemyPlayer(const std::shared_ptr<PlayerCharacter>& pl);
+	std::shared_ptr<PlayerCharacter> EnemyPlayer();
 
 	private:
 	std::vector<std::shared_ptr<IBehaviorState>> m_vBehaviors;

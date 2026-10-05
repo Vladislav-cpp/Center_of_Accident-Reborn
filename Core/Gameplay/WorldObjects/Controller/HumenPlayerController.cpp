@@ -52,10 +52,11 @@ std::unique_ptr<MovementCommand> HumenPlayerController::CreateMoveCommand(float 
 
 std::unique_ptr<FireCommand> HumenPlayerController::CreateAttackCommand() {
 	if( !m_pAttacktimer->IsFinished() ) return nullptr;
-	m_pAttacktimer->Restart();
 
 	auto state = ActionHandler::Instance().ActionsImput();
 	if( !state.bFire ) return nullptr;
+
+	m_pAttacktimer->Restart();
 	auto comand = std::make_unique<FireCommand>();
 	
 	comand->SetMousePosition( state.mousePosition );

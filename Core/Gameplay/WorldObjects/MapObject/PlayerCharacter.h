@@ -19,12 +19,12 @@ class PlayerCharacter : public MovableObject {
 	};
 
 	void SetInvulnerable(bool bInvulnerable) {
-		auto newState = bInvulnerable ? UIState::Hidden : UIState::Visible;
+		auto newState = bInvulnerable ? UIState::Visible : UIState::Hidden;
 		ChangeUIState(UIType::Shield, newState);
 	}
 
 	bool IsInvulnerable() {
-		return GetUI(UIType::Shield)->GetState() == UIState::Hidden;
+		return GetUI(UIType::Shield)->GetState() == UIState::Visible;
 	}
 
 	virtual void ApplyDamage(int damage) override {

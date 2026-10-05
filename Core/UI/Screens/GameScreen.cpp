@@ -24,16 +24,17 @@ GameScreen::~GameScreen() {
 	delete m_pHUD;
 }
 
-void GameScreen::HandleEvent(const sf::Event& e) {
+bool GameScreen::HandleEvent(const sf::Event& e) {
 	// натискання клавіш, пауза, відкриття меню і т.д.
 	// приклад: якщо Escape → m_Screens.Push(std::make_unique<PauseScreen>(m_Window, m_Screens));
+	return false;
 }
 
 void GameScreen::Update(float dt) {
 	m_xScreens.m_xSession.view.setCenter( utility::ClampToMap( m_xScreens.m_xSession.m_xPlayer->Coord(), CFG().windowWidth, CFG().windowHeight, CFG().mapWidth, CFG().mapHeight) );
 }
 
-void GameScreen::Render(float dt) {
+void GameScreen::Draw(float dt) {
 	Update(dt);
 	
 	m_uBackground.Draw(m_xWindow);
