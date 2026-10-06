@@ -2,22 +2,20 @@
 
 class EventBus;
 class ClientNetworkSystem;
-class GameSession;
 class Render;
 
-class GameController
-{
+class GameController {
 public:
 	GameController(
-		EventBus& events,
-		ClientNetworkSystem& network,
-		GameSession& session
-	);
+		EventBus& events
+	) : m_mEvents(events) {};
 
+public:
 	void UpdateOnline(float dt);
 	void UpdateOffline(float dt);
 
 	void RenderWorld(Render& render, float dt);
+
 
 private:
 	void SendPlayerActivities(float dt);
@@ -30,6 +28,4 @@ private:
 
 private:
 	EventBus& m_mEvents;
-	ClientNetworkSystem& m_mNetwork;
-	GameSession& m_mSession;
 };

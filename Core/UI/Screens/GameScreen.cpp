@@ -1,5 +1,4 @@
 #include "GameScreen.h"
-#include "GameSession.h"
 #include "MapHUD.h"
 #include "Config.h"
 #include "PlayerCharacter.h"
@@ -17,7 +16,7 @@ GameScreen::GameScreen(sf::RenderWindow& window, ScreenManager& screens) : Scree
 	// --- MUSIC ---
 	//SoundMg().PlayMusic( m_sMusic, true, 70.f );
 
-	m_pHUD = new MapHUD(m_xScreens.m_xSession.m_xPlayer);
+	// TODO m_pHUD = new MapHUD(m_xScreens.m_xSession.m_xPlayer);
 }
 
 GameScreen::~GameScreen() {
@@ -31,7 +30,7 @@ bool GameScreen::HandleEvent(const sf::Event& e) {
 }
 
 void GameScreen::Update(float dt) {
-	m_xScreens.m_xSession.view.setCenter( utility::ClampToMap( m_xScreens.m_xSession.m_xPlayer->Coord(), CFG().windowWidth, CFG().windowHeight, CFG().mapWidth, CFG().mapHeight) );
+	// TODO m_xScreens.m_xSession.view.setCenter( utility::ClampToMap( m_xScreens.m_xSession.m_xPlayer->Coord(), CFG().windowWidth, CFG().windowHeight, CFG().mapWidth, CFG().mapHeight) );
 }
 
 void GameScreen::Draw(float dt) {

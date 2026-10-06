@@ -1,14 +1,14 @@
 #include "Render.h"
 #include "World.h"
 #include "StaticObject.h"
-#include "GameSession.h"
 
 
 
 void Render::DrawWorld( float time, bool drawDebug) {
 
 //	view.setCenter( utility::ClampToMap(player->Coord(), CFG().windowWidth, CFG().windowHeight, CFG().mapWidth, CFG().mapHeight) );
-	window.setView(m_xSession.view);
+
+	window.setView(m_xSession.view);// TODO
 
 	//очистка вікна
 	//window.clear();

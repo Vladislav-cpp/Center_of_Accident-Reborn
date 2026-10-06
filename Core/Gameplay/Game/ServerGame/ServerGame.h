@@ -1,7 +1,7 @@
 #pragma once
 
 class ServerNetworkSystem;
-class SpawnSystem;
+class AIManager;
 
 class ServerGame {
 	public:
@@ -13,5 +13,5 @@ class ServerGame {
 
 	private:
 	ServerNetworkSystem* m_xNetwork;
-	SpawnSystem* m_xSpawner;
+	AIManager* m_xAIManager;
 };

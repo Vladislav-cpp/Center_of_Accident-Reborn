@@ -5,12 +5,12 @@
 #include "net_all.h"
 #include "NetworkCommon.h"
 
-class GameSession;
+class EventBus;
 class PlayerCharacter;
 
 class ClientNetworkSystem : public net::tcp_client<MsgTypes>, public net::udp_client<MsgTypes> {
 	public:
-	using ConnectionStateHandler = std::function<void(net::ConnectionState oldState, net::ConnectionState newState)>;
+	ClientNetworkSystem(EventBus& events) : m_mEvents(events) {}
 
 	public:
 	bool Connect(const std::string& host, const uint16_t port);
@@ -20,13 +20,6 @@ class ClientNetworkSystem : public net::tcp_client<MsgTypes>, public net::udp_cl
 	void Update_UDP();
 	public:
 	int GetMyID() { return m_iMyID; };
-
-	public:
-	void SetSession(GameSession* session);
-
-	void SetOnConnectionStateChanged(ConnectionStateHandler handler) {
-		m_onConnectionStateChanged = std::move(handler);
-	}
 
 	public:
 	void SendJoinRequest();
@@ -44,7 +37,6 @@ class ClientNetworkSystem : public net::tcp_client<MsgTypes>, public net::udp_cl
 	private:
 	PlayerDescription myDescription;
 	uint32_t m_iMyID = 0;
-	GameSession * m_pSession;
 	
 	private:
 	std::deque<WorldSnapshot> m_snapshotBuffer;
@@ -54,7 +46,7 @@ class ClientNetworkSystem : public net::tcp_client<MsgTypes>, public net::udp_cl
 	std::unordered_set<int> m_existingPlayerIDs;
 
 	private:
-	ConnectionStateHandler m_onConnectionStateChanged;
+	EventBus& m_mEvents;
 	net::ConnectionState m_lastKnownTcpState = net::ConnectionState::Idle;
 
 	private:

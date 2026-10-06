@@ -4,19 +4,19 @@
 #include "DestructibleObject.h"
 #include "HumenPlayerController.h"
 #include "AIPlayerController.h"
-#include "GameTime.h"
+#include "TimeSystem.h"
 #include "CollisionSystem.h"
-//#include "SpawnSystem.h"
+#include "AIManager.h"
 #include "HealthSystem.h"
 
 ServerGame::ServerGame() {	
 	m_xNetwork = new ServerNetworkSystem(60000);
-	//m_xSpawner = new SpawnSystem();
+	m_xAIManager = new AIManager();
 }
 
 ServerGame::~ServerGame() {
 	delete m_xNetwork;
-	//delete m_xSpawner;
+	delete m_xAIManager;
 }
 
 
@@ -33,34 +33,34 @@ void ServerGame::Run() {
 	m_xNetwork->Start();
 	
 	uint32_t UniqueBOT_ID = 0;
-	//GameTime globalTime;
 
-	//SpawnPoint p;
+	SpawnPoint p;
 	p.m_vPos = {600 , 600};
 	p.m_iMaxBots = 500;
 	p.m_iBotsPerSpawn = 5;
 	p.m_xSpawnTimer = GameTimer{3};	
 
-	//m_xSpawner->AddSpawnPoint(p);
+	m_xAIManager->AddSpawnPoint(p);
 
-	GameTimer tickTimer(0.0166); // Логіка та Тік (60 Гц)
+	GameTimer tickTimer(0.00833); // 60 Гц: 1 / 60 ≈ 0.0166, 120 Гц: 1 / 120 ≈ 0.00833, 144 Гц: 1 / 144 ≈ 0.00694, 240 Гц: 1 / 240 ≈ 0.00416
 	GameTimer netRate(0.033); // 30 Гц
 
 	while(true) {
 
-		//globalTime.Update();
-		//float dt = globalTime.Delta();
-
 		m_xNetwork->Update(-1);
 
 		if( tickTimer.IsFinished() ) {
+			tickTimer.Restart();
+
+			TimeSys().Tick(tickTimer.Duration());
+			float dt = TimeSys().DeltaTime();
 
 			m_xNetwork->OnTick();
 
-			if( !WHumanPlayers().empty() );// m_xSpawner->Update();
+			//if( !WHumanPlayers().empty() ) m_xAIManager->Update();
 
-			//for( auto& ai : WAIPlayers() ) for( auto& comand : ai->GetController()->GenerateCommands(dt) ) comand->Execute();
-			//for( auto& ai : WProjectiles() ) for( auto& comand : ai->GetController()->GenerateCommands(dt) ) comand->Execute();
+			for( auto& ai : WAIPlayers() )   for( auto& comand : ai->GetController()->GenerateCommands(dt) ) comand->Execute();
+			for( auto& ai : WProjectiles() ) for( auto& comand : ai->GetController()->GenerateCommands(dt) ) comand->Execute();
 
 			CollSys().UpdateCollisions();
 			HealthSys().Update(m_xNetwork);

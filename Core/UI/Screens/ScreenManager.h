@@ -3,30 +3,33 @@
 #include <vector>
 
 class Screen;
-class GameSession;
+class EventBus;
+
 namespace sf {
 	class Event;
 }	
 
-class GameSession;
 
 class ScreenManager {
 	public:
-	ScreenManager(GameSession& session) : m_xSession(session) {}
+	ScreenManager( EventBus& events ) : m_mEvents(events) {}
 
 	public:
-	void Push(std::unique_ptr<Screen>);
-	void Pop();
+	void Initialize();
 
 	public:
 	void Draw(float dt);
 	bool HandleEvent(const sf::Event& e);
 
-	public:
+	private:
+	void Push(std::unique_ptr<Screen>);
+	void Pop();
+
+	private:
 	Screen* Current();
 
-	public:
-	GameSession& m_xSession;
+	private:
+	EventBus& m_mEvents;
 
 	private:
 	std::vector<std::unique_ptr<Screen>> m_xStack;

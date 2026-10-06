@@ -2,6 +2,10 @@
 #include "Screen.h"
 
 
+void ScreenManager::Initialize() {
+
+}
+
 void ScreenManager::Push(std::unique_ptr<Screen> screen) {
 	m_xStack.push_back(std::move(screen));
 }

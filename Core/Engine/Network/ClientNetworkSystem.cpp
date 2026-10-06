@@ -7,8 +7,8 @@
 #include "StaticStatsDust.h"
 #include "StaticStatsUfo.h"
 #include "StaticStatsProjectile.h"
-#include "GameSession.h"
 #include "FireCommand.h"
+#include "EventBus.h"
 
 bool ClientNetworkSystem::Connect(const std::string& host, const uint16_t port) {
 
@@ -31,9 +31,6 @@ void ClientNetworkSystem::Update() {
 
 	Update_TCP();
 	Update_UDP();
-}
-void ClientNetworkSystem::SetSession(GameSession* session) {
-	m_pSession = session;
 }
 
 void ClientNetworkSystem::Update_TCP() {

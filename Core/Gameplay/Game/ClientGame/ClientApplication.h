@@ -2,19 +2,12 @@
 
 #include <SFML/Graphics.hpp>
 
-#include "EventBus.h"
-#include "GameSession.h"
-
+class EventBus;
 class GameController;
+class GameState;
 class ClientNetworkSystem;
 class Render;
 class ScreenManager;
-
-enum class ApplicationMode {
-	Interface,
-	OnlineGame,
-	OfflineGame
-};
 
 class ClientApplication {
 public:
@@ -37,21 +30,13 @@ private:
 
 	void SubscribeToEvents();
 
-	void OnOnlineGameRequested();
-	void OnOfflineGameRequested();
-	void OnReturnToInterfaceRequested();
-
-	void OnConnectionStateChanged(
-		//const ConnectionStateChangedEvent& event
-	);
-
 private:
-	ApplicationMode			m_mMode		= ApplicationMode::Interface;
+	// Game Info/state
+	GameState*				m_mState	= nullptr;
 
 	EventBus*				m_mEvents	= nullptr;
 
 	sf::RenderWindow*		m_mWindow	= nullptr;
-	GameSession*			m_mSession	= nullptr;
 
 	ClientNetworkSystem*	m_mNetwork	= nullptr;
 	Render*					m_mRender	= nullptr;

@@ -7,6 +7,8 @@
 #include "ActionHandler.h"
 #include "Config.h"
 #include "TimeSystem.h"
+#include "EventBus.h"
+#include "GameState.h"
 
 ClientApplication::ClientApplication() {
 	Initialize();
@@ -18,7 +20,7 @@ ClientApplication::~ClientApplication() {
 	delete m_mRender;
 	delete m_mNetwork;
 
-	delete m_mSession;
+	delete m_mState;
 	delete m_mWindow;
 
 	delete m_mEvents;
@@ -36,18 +38,16 @@ void ClientApplication::Initialize() {
 		sf::State::Windowed
 	);
 
-	m_mSession	= new GameSession();
-	m_mNetwork	= new ClientNetworkSystem(	*m_events );
-	m_mRender	= new Render(				*m_window,	*m_session );
-	m_mScreens	= new ScreenManager(		*m_window,	*m_events );
-	m_mGame		= new GameController(		*m_network, *m_session );
-
-	m_network->SetSession(m_session);
+	m_mState	= new GameState(); 
+	m_mNetwork	= new ClientNetworkSystem(	*m_mEvents );
+	m_mRender	= new Render(				*m_mWindow );
+	m_mScreens	= new ScreenManager(		*m_mEvents );
+	m_mGame		= new GameController(		*m_mEvents, *m_mNetwork);
 
 	sf::Cursor cursor{sf::Cursor::Type::Arrow};
-	m_window->setMouseCursor(cursor);
+	m_mWindow->setMouseCursor(cursor);
 
-	auto& view = m_session->view;
+	auto& view = m_mState->view;
 
 	view = sf::View(
 		{
@@ -73,33 +73,6 @@ void ClientApplication::Initialize() {
 	SubscribeToEvents();
 }
 
-void ClientApplication::SubscribeToEvents() {
-
-	m_mEvents->Subscribe<OnlineGameRequestedEvent>(
-		[this](const OnlineGameRequestedEvent&) {
-			OnOnlineGameRequested();
-		}
-	);
-
-	m_mEvents->Subscribe<OfflineGameRequestedEvent>(
-		[this](const OfflineGameRequestedEvent&) {
-			OnOfflineGameRequested();
-		}
-	);
-
-	m_mEvents->Subscribe<ReturnToInterfaceRequestedEvent>(
-		[this](const ReturnToInterfaceRequestedEvent&) {
-			OnReturnToInterfaceRequested();
-		}
-	);
-
-	m_mEvents->Subscribe<ConnectionStateChangedEvent>(
-		[this](const ConnectionStateChangedEvent& event) {
-			OnConnectionStateChanged(event);
-		}
-	);
-}
-
 void ClientApplication::Run() {
 
 	while( m_mWindow->isOpen() ) {
@@ -123,35 +96,38 @@ void ClientApplication::ProcessEvents() {
 
 	while( auto event = m_mWindow->pollEvent() ) {
 
+		// перевірка на закриття вікна
 		if( event->is<sf::Event::Closed>() ) {
 
-			m_mWindow->close(); 
+			m_mWindow->close(); //TODO тут треба закрити всі підсистеми, а не тільки вікно і закрити процес 
 			//TODO add save game state or ask user if he want save game state
 
 			continue;
 		}
 
-		m_mScreens->HandleEvent(*event);
+		// перевіряємо чи це натиск на UI
+		if(m_mScreens->HandleEvent(*event)) {
+			continue;
+		}
+		
+		
 
 	}
 }
 
-void ClientApplication::Update(float dt) {
+void ClientApplication::Draw(float dt) {
+	m_mWindow->clear();
 
-	switch(m_mMode) {
-		case ApplicationMode::Interface:
-			UpdateInterface(dt);
-			break;
-
-		case ApplicationMode::OnlineGame:
-			UpdateOnlineGame(dt);
-			break;
-
-		case ApplicationMode::OfflineGame:
-			UpdateOfflineGame(dt);
-			break;
+	if(m_mState->mode == ApplicationMode::OnlineGame || m_mState->mode == ApplicationMode::OfflineGame) {
+		m_mRender->DrawWorld(dt, true);
 	}
+
+	m_mScreens->Draw(dt);
+
+	m_mWindow->display();
 }
+
+#include "ClientApplicationExtensions.inl"
 
 void ClientApplication::UpdateInterface(float dt) {
 }
@@ -166,18 +142,7 @@ void ClientApplication::UpdateOfflineGame(float dt) {
 	m_mGame->UpdateOffline(dt);
 }
 
-void ClientApplication::Draw(float dt) {
-	m_mWindow->clear();
-
-	if(m_mMode == ApplicationMode::OnlineGame || m_mMode == ApplicationMode::OfflineGame) {
-		m_mRender->DrawWorld(dt, true);
-	}
-
-	m_mScreens->Draw(dt);
-
-	m_mWindow->display();
-}
-
+/*
 void ClientApplication::OnOnlineGameRequested()
 {
 	m_mNetwork->Connect(
@@ -187,26 +152,27 @@ void ClientApplication::OnOnlineGameRequested()
 }
 
 void ClientApplication::OnOfflineGameRequested() {
-	m_mMode = ApplicationMode::OfflineGame;
+	m_mState->mode = ApplicationMode::OfflineGame;
 }
 
 void ClientApplication::OnReturnToInterfaceRequested() {
 
-	if(m_mMode == ApplicationMode::OnlineGame) {
+	if(m_mState->mode == ApplicationMode::OnlineGame) {
 		m_mNetwork->Disconnect();
 	}
 
-	m_mMode = ApplicationMode::Interface;
+	m_mState->mode = ApplicationMode::Interface;
 }
 
 void ClientApplication::OnConnectionStateChanged( const ConnectionStateChangedEvent& event ) {
 
 	if(event.newState == net::ConnectionState::Connected) {
-		m_mMode = ApplicationMode::OnlineGame;
+		m_mState->mode = ApplicationMode::OnlineGame;
 		return;
 	}
 
 	if(event.newState == net::ConnectionState::Failed) {
-		m_mMode = ApplicationMode::Interface;
+		m_mState->mode = ApplicationMode::Interface;
 	}
 }
+*/
