@@ -24,7 +24,7 @@ void ClientNetworkSystem::Update() {
 		net::ConnectionState old = m_lastKnownTcpState;
 		m_lastKnownTcpState = current;
 
-		if( m_onConnectionStateChanged ) m_onConnectionStateChanged(old, current);
+		//if( m_onConnectionStateChanged ) m_onConnectionStateChanged(old, current);
 	}
 
 	if( !IsConnected() ) return;
@@ -60,7 +60,7 @@ while( !tcp_inComing.empty() ) {
 
 	case( MsgTypes::S2C_JoinAccepted ) : {
 
-		m_pSession->state = GameState::InGame;
+		//m_pSession->state = GameState::InGame;
 		std::cout << "S2C_JoinAccepted " << "\n";
 		break;
 	}
@@ -164,7 +164,7 @@ void ClientNetworkSystem::SendPlayerState() {
 
 	PlayerDescription outdata;
 	outdata.ID = GetMyID();
-	outdata.m_vCoord = m_pSession->m_xPlayer->Coord();
+	//outdata.m_vCoord = m_pSession->m_xPlayer->Coord();
 	//outdata.HP = player->HP();
  
 	net::message<MsgTypes> msg;

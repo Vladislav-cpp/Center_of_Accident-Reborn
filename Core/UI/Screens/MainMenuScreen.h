@@ -30,6 +30,6 @@ class MainMenuScreen : public Screen {
 	sf::View m_xView;
 
 	private:
-	bool m_bHoverStart = false;
-	bool m_bHoverOption = false;
+	bool m_bOverStart = false;
+	bool m_bOverOption = false;
 };

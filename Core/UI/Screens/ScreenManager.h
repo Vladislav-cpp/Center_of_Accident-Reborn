@@ -1,8 +1,8 @@
 #pragma once
 #include <memory>
 #include <vector>
+#include <Screen.h>
 
-class Screen;
 class EventBus;
 
 namespace sf {

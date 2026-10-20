@@ -1,7 +1,8 @@
 #pragma once
 #include <SFML/Window/Event.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
-#include "ScreenManager.h"
+
+class ScreenManager;
 
 class Screen {
 	public:

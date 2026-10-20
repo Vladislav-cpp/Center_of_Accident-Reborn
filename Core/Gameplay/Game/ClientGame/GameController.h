@@ -20,10 +20,6 @@ public:
 private:
 	void SendPlayerActivities(float dt);
 
-	void OnConnectionStateChanged(
-		//const ConnectionStateChangedEvent& event
-	);
-
 	void CreateLocalPlayer();
 
 private:

@@ -42,7 +42,7 @@ void ClientApplication::Initialize() {
 	m_mNetwork	= new ClientNetworkSystem(	*m_mEvents );
 	m_mRender	= new Render(				*m_mWindow );
 	m_mScreens	= new ScreenManager(		*m_mEvents );
-	m_mGame		= new GameController(		*m_mEvents, *m_mNetwork);
+	m_mGame		= new GameController(		*m_mEvents );
 
 	sf::Cursor cursor{sf::Cursor::Type::Arrow};
 	m_mWindow->setMouseCursor(cursor);
@@ -102,13 +102,16 @@ void ClientApplication::ProcessEvents() {
 			m_mWindow->close(); //TODO тут треба закрити всі підсистеми, а не тільки вікно і закрити процес 
 			//TODO add save game state or ask user if he want save game state
 
-			continue;
+			break;
 		}
 
 		// перевіряємо чи це натиск на UI
+		// перевірити чи наша програма в фокусі
 		if(m_mScreens->HandleEvent(*event)) {
 			continue;
 		}
+
+		// якщо це не натиск на UI, то дивимось хто в нас щє приймає клікі
 		
 		
 
@@ -127,9 +130,8 @@ void ClientApplication::Draw(float dt) {
 	m_mWindow->display();
 }
 
-#include "ClientApplicationExtensions.inl"
-
 void ClientApplication::UpdateInterface(float dt) {
+
 }
 
 void ClientApplication::UpdateOnlineGame(float dt) {
@@ -142,37 +144,4 @@ void ClientApplication::UpdateOfflineGame(float dt) {
 	m_mGame->UpdateOffline(dt);
 }
 
-/*
-void ClientApplication::OnOnlineGameRequested()
-{
-	m_mNetwork->Connect(
-		"192.168.1.102",
-		60000
-	);
-}
-
-void ClientApplication::OnOfflineGameRequested() {
-	m_mState->mode = ApplicationMode::OfflineGame;
-}
-
-void ClientApplication::OnReturnToInterfaceRequested() {
-
-	if(m_mState->mode == ApplicationMode::OnlineGame) {
-		m_mNetwork->Disconnect();
-	}
-
-	m_mState->mode = ApplicationMode::Interface;
-}
-
-void ClientApplication::OnConnectionStateChanged( const ConnectionStateChangedEvent& event ) {
-
-	if(event.newState == net::ConnectionState::Connected) {
-		m_mState->mode = ApplicationMode::OnlineGame;
-		return;
-	}
-
-	if(event.newState == net::ConnectionState::Failed) {
-		m_mState->mode = ApplicationMode::Interface;
-	}
-}
-*/
+#include "ClientApplicationExtensions.inl"

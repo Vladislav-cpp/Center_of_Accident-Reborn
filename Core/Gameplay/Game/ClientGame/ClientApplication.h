@@ -1,6 +1,7 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
+#include <ClientEvents.h>
 
 class EventBus;
 class GameController;
@@ -29,6 +30,10 @@ private:
 	void Draw(float dt);
 
 	void SubscribeToEvents();
+	void OnOnlineGame(const OnlineGameRequestedEvent& event);
+	void OnOfflineGame(const OfflineGameRequestedEvent& event);
+	void OnReturnToInterface(const ReturnToInterfaceRequestedEvent& event);
+	void OnConnectionStateChanged(const ConnectionStateChangedEvent& event);
 
 private:
 	// Game Info/state

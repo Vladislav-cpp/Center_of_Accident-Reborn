@@ -1,4 +1,17 @@
+#pragma once
 
-struct {
+struct ConnectionStateChangedEvent {
 
-}
+};
+
+struct ReturnToInterfaceRequestedEvent {
+
+};
+
+struct OfflineGameRequestedEvent {
+
+};
+
+struct OnlineGameRequestedEvent {
+
+};

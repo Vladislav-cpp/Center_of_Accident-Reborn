@@ -29,6 +29,7 @@ bool ScreenManager::HandleEvent(const sf::Event& e) {
 
 void ScreenManager::Draw(float dt) {
 
+	//TODO можливість малювати більше ніж 1 скрін
 	if( auto* screen = Current() ) {
 		screen->Draw(dt);
 	}

@@ -60,8 +60,8 @@ bool MainMenuScreen::HandleEvent(const sf::Event& e) {
 void MainMenuScreen::Update(float) {
 	auto mousePos = sf::Mouse::getPosition(m_xWindow);
 
-	m_bHoverStart = sf::IntRect({435, 146}, {191, 49}).contains(mousePos);
-	m_bHoverOption = sf::IntRect({451, 216}, {159, 49}).contains(mousePos);
+	m_bOverStart = sf::IntRect({435, 146}, {191, 49}).contains(mousePos);
+	m_bOverOption = sf::IntRect({451, 216}, {159, 49}).contains(mousePos);
 }
 
 void MainMenuScreen::Draw(float dt) {
@@ -69,8 +69,8 @@ void MainMenuScreen::Draw(float dt) {
 
 	m_uMenu.Draw(m_xWindow);
 
-	if( m_bHoverStart ) m_uStar.Draw(m_xWindow);
-	if( m_bHoverOption ) m_uOption.Draw(m_xWindow);
+	if( m_bOverStart ) m_uStar.Draw(m_xWindow);
+	if( m_bOverOption ) m_uOption.Draw(m_xWindow);
 }
 
 void MainMenuScreen::OnStart() {
