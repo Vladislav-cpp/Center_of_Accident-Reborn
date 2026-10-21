@@ -10,7 +10,7 @@ class PlayerCharacter;
 
 class ClientNetworkSystem : public net::tcp_client<MsgTypes>, public net::udp_client<MsgTypes> {
 	public:
-	ClientNetworkSystem(EventBus& events) : m_mEvents(events) {}
+	ClientNetworkSystem(EventBus& events) : m_mModelEvents(events) {}
 
 	public:
 	bool Connect(const std::string& host, const uint16_t port);
@@ -46,7 +46,7 @@ class ClientNetworkSystem : public net::tcp_client<MsgTypes>, public net::udp_cl
 	std::unordered_set<int> m_existingPlayerIDs;
 
 	private:
-	EventBus& m_mEvents;
+	EventBus& m_mModelEvents;
 	net::ConnectionState m_lastKnownTcpState = net::ConnectionState::Idle;
 
 	private:

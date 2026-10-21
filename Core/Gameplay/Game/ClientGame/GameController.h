@@ -8,7 +8,7 @@ class GameController {
 public:
 	GameController(
 		EventBus& events
-	) : m_mEvents(events) {};
+	) : m_mModelEvents(events) {};
 
 public:
 	void UpdateOnline(float dt);
@@ -23,5 +23,5 @@ private:
 	void CreateLocalPlayer();
 
 private:
-	EventBus& m_mEvents;
+	EventBus& m_mModelEvents;
 };

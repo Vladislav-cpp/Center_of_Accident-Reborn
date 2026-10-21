@@ -3,7 +3,7 @@
 
 class PlayerCharacter;
 
-class MapHUD {
+class MapHUD : public UIElement {
 	public:
 	MapHUD(std::shared_ptr<PlayerCharacter> pl);
 

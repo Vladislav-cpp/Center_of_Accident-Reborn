@@ -8,7 +8,7 @@
 static const std::string m_sMusic = "Resources/sound and music/background music.ogg";
 
 
-GameScreen::GameScreen(sf::RenderWindow& window, ScreenManager& screens) : Screen(window, screens) {
+GameScreen::GameScreen(sf::RenderWindow& window, std::shared_ptr<EventBus> m_mUIEvents) : Screen(window, m_mUIEvents) {
 
 	m_uBackground.SetData("Resources/images/background.png", {0, 0},{ CFG().mapWidth , CFG().mapHeight }, 0, 0 );
 

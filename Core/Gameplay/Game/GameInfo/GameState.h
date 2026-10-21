@@ -1,7 +1,6 @@
 #pragma once
 #include <memory>
 
-#include <SFML/Graphics.hpp>
 class PlayerCharacter;
 
 enum class GamePhase {
@@ -37,8 +36,6 @@ class GameState {
 	public:
 	GamePhase state = GamePhase::MainMenu;
 	ApplicationMode mode = ApplicationMode::Interface;
-	
-	sf::View view; // видалити цю діч
 };
 
 

@@ -37,15 +37,12 @@ private:
 
 private:
 	// Game Info/state
-	GameState*				m_mState	= nullptr;
+	GameState*				m_mState		= nullptr;
+	EventBus*				m_mModelEvents	= nullptr;
+	ClientNetworkSystem*	m_mNetwork		= nullptr;
+	ScreenManager*			m_mScreens		= nullptr;
+	GameController*			m_mGame			= nullptr;
 
-	EventBus*				m_mEvents	= nullptr;
-
-	sf::RenderWindow*		m_mWindow	= nullptr;
-
-	ClientNetworkSystem*	m_mNetwork	= nullptr;
-	Render*					m_mRender	= nullptr;
-	ScreenManager*			m_mScreens	= nullptr;
-
-	GameController*			m_mGame		= nullptr;
+	sf::RenderWindow*		m_mWindow		= nullptr;
+	Render*					m_mRender		= nullptr;
 };

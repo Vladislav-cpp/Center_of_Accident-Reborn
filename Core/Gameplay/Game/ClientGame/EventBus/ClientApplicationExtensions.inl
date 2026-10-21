@@ -5,25 +5,25 @@
 
 void ClientApplication::SubscribeToEvents() {
 
-	m_mEvents->Subscribe<OnlineGameRequestedEvent>(
+	m_mModelEvents->Subscribe<OnlineGameRequestedEvent>(
 		[this](const OnlineGameRequestedEvent& event) {
 			OnOnlineGame(event);
 		}
 	);
 
-	m_mEvents->Subscribe<OfflineGameRequestedEvent>(
+	m_mModelEvents->Subscribe<OfflineGameRequestedEvent>(
 		[this](const OfflineGameRequestedEvent& event) {
 			OnOfflineGame(event);
 		}
 	);
 
-	m_mEvents->Subscribe<ReturnToInterfaceRequestedEvent>(
+	m_mModelEvents->Subscribe<ReturnToInterfaceRequestedEvent>(
 		[this](const ReturnToInterfaceRequestedEvent& event) {
 			OnReturnToInterface(event);
 		}
 	);
 
-	m_mEvents->Subscribe<ConnectionStateChangedEvent>(
+	m_mModelEvents->Subscribe<ConnectionStateChangedEvent>(
 		[this](const ConnectionStateChangedEvent& event) {
 			OnConnectionStateChanged(event);
 		}
@@ -49,7 +49,7 @@ void ClientApplication::Update(float dt) {
 
 void ClientApplication::OnOnlineGame(const OnlineGameRequestedEvent& event) {
 	m_mNetwork->Connect(
-		"192.168.1.102",
+		"192.168.1.102", //TODO брати з функції яка буде дивитись в Config але знатиме чи це локалка чи сервер
 		60000
 	);
 }	

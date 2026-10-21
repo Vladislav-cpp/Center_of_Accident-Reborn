@@ -8,7 +8,7 @@ const static std::map<net::ConnectionState, std::string> s_connectionImages = {
 	{ net::ConnectionState::Failed, "Resources/Images/ConnectionStatus/connecting_failed.png" }
 };
  
-GlobalOverlay::GlobalOverlay(sf::RenderWindow& window, ScreenManager& screens) : Screen(window, screens) {
+GlobalOverlay::GlobalOverlay(sf::RenderWindow& window, std::shared_ptr<EventBus> m_mUIEvents) : Screen(window, m_mUIEvents) {
 
 	auto objects = reflection::Ref.m_xUI_Objects;
 

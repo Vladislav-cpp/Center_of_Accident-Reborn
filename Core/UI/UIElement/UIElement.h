@@ -47,7 +47,8 @@ class UIElement {
 	std::string m_sTextureFile;
 	float m_fCurentFrame = 0;
 
-	UIType m_xType = UIType::Main;
+	public:
+	UIType m_xType = UIType::Unknown;
 	UIState m_xState = UIState::Visible;
 };
 

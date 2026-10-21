@@ -1,11 +1,6 @@
 #include "ScreenManager.h"
 #include "Screen.h"
 
-
-void ScreenManager::Initialize() {
-
-}
-
 void ScreenManager::Push(std::unique_ptr<Screen> screen) {
 	m_xStack.push_back(std::move(screen));
 }
@@ -38,3 +33,5 @@ void ScreenManager::Draw(float dt) {
 Screen* ScreenManager::Current() {
 	return m_xStack.empty() ? nullptr : m_xStack.back().get();
 }
+
+#include "INI_ScreenManagerExtensions.h"

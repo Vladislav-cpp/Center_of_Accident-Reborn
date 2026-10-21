@@ -3,11 +3,21 @@
 #include <string>
 #include <stdexcept>
 
-#define UI_TYPE_LIST(X) \
-    X( Main )             \
-    X( HealthLabel )      \
-    X( Shield )           \
-    X( ConnectionState )           
+// for buttost
+// NameScreen (- #Screen) + name button (- #m_u) 
+// example MainMenuScreen have m_uStar  -->  MainMenuStart
+
+#define UI_TYPE_LIST(X)     \
+    X( Screen )             \
+    X( Main )               \
+    X( Unknown )            \
+    X( HealthLabel )        \
+    X( Shield )             \
+    X( ConnectionState )    \
+    X( MainMenuStart )      \
+    X( MainMenuOption )     \
+
+
 
 enum class UIType {
 #define AS_ENUM(name) name,
@@ -20,7 +30,7 @@ inline UIType UITypeFromString(const std::string& str) {
     UI_TYPE_LIST(AS_IF_ELSE_UIType)
 #undef AS_IF_ELSE
 
-    throw std::invalid_argument("Unknown UIType: " + str);
+    throw std::invalid_argument("Unknown UIType: " + str); // кращє логувати
 }
 
 
@@ -40,6 +50,6 @@ inline UIState UIStateFromString(const std::string& str) {
     UI_STATE_LIST(AS_IF_ELSE_UIState)
 #undef AS_IF_ELSE
 
-    throw std::invalid_argument("Unknown UIType: " + str);
+    throw std::invalid_argument("Unknown UI State: " + str);
 }
 

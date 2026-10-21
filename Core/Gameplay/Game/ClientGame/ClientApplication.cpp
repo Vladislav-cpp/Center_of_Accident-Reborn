@@ -17,56 +17,28 @@ ClientApplication::ClientApplication() {
 ClientApplication::~ClientApplication() {
 	delete m_mGame;
 	delete m_mScreens;
-	delete m_mRender;
 	delete m_mNetwork;
-
 	delete m_mState;
+	delete m_mModelEvents;
 	delete m_mWindow;
-
-	delete m_mEvents;
 }
 
 void ClientApplication::Initialize() {
+	m_mModelEvents = new EventBus();
+
+	m_mState	= new GameState(); 
+	m_mNetwork	= new ClientNetworkSystem(	*m_mModelEvents );
+	m_mScreens	= new ScreenManager(		m_mWindow, *m_mModelEvents );
+	m_mGame		= new GameController(		*m_mModelEvents );
+
 	CFG().windowWidth = 1000;
 	CFG().windowHeight = 563;
-
-	m_mEvents = new EventBus();
 
 	m_mWindow = new sf::RenderWindow(
 		sf::VideoMode({1000, 563}),
 		"Accident Center 2",
 		sf::State::Windowed
 	);
-
-	m_mState	= new GameState(); 
-	m_mNetwork	= new ClientNetworkSystem(	*m_mEvents );
-	m_mRender	= new Render(				*m_mWindow );
-	m_mScreens	= new ScreenManager(		*m_mEvents );
-	m_mGame		= new GameController(		*m_mEvents );
-
-	sf::Cursor cursor{sf::Cursor::Type::Arrow};
-	m_mWindow->setMouseCursor(cursor);
-
-	auto& view = m_mState->view;
-
-	view = sf::View(
-		{
-			CFG().windowWidth * 0.5f,
-			CFG().windowHeight * 0.5f
-		},
-		{
-			float(CFG().windowWidth),
-			float(CFG().windowHeight)
-		}
-	);
-
-	view.setViewport(
-		sf::FloatRect{ {0.f, 0.f}, {1.f, 1.f} }
-	);
-
-	m_mWindow->setView(view);
-
-	ActionHandler::Instance().SetWindow(m_mWindow);
 
 	m_mScreens->Initialize();
 

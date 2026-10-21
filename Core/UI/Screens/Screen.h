@@ -1,18 +1,22 @@
 #pragma once
 #include <SFML/Window/Event.hpp>
-#include <SFML/Graphics/RenderWindow.hpp>
+#include <UIElement.h>
+#include <UIEventEvents.h>
+#include <EventBus.h>
 
 class ScreenManager;
 
-class Screen {
+class Screen : public UIElement  {
 	public:
-	Screen(sf::RenderWindow& window, ScreenManager& screens)
-		: m_xWindow(window), m_xScreens(screens) {}
+	Screen(sf::RenderWindow& window, std::shared_ptr<EventBus> m_mUIEvents) : m_xWindow(window), m_mUIEvents(m_mUIEvents) {
+		m_xType = UIType::Screen;
+	}
+
 	virtual ~Screen() = default;
 
 	public:
-	virtual void OnOpen() {}
-	virtual void OnClose() {}
+	virtual void OnOpen() = 0;
+	virtual void OnClose() = 0;
 
 	public:
 	virtual bool HandleEvent(const sf::Event&) = 0;
@@ -23,5 +27,5 @@ class Screen {
 
 	protected:
 	sf::RenderWindow& m_xWindow;
-	ScreenManager& m_xScreens;
+	std::shared_ptr<EventBus> m_mUIEvents = nullptr;
 };

@@ -5,11 +5,11 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
 
-
+class EventBus;
 
 class MainMenuScreen : public Screen {
 	public:
-	MainMenuScreen(sf::RenderWindow& window, ScreenManager& screens);
+	MainMenuScreen(sf::RenderWindow& window, std::shared_ptr<EventBus> m_mUIEvents);
 
 	virtual bool HandleEvent(const sf::Event& e) override;
 
@@ -18,9 +18,12 @@ class MainMenuScreen : public Screen {
 
 	void OnStart();
 
+	virtual void OnOpen() override {};
+	virtual void OnClose() override {};
+
 	private:
 	UIElement m_uMenu;
-	UIElement m_uStar;
+	UIElement m_uStart;
 	UIElement m_uOption;
 
 	private:

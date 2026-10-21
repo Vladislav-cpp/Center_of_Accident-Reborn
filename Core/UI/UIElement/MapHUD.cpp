@@ -61,6 +61,8 @@ void MapHUD::Update() {
 
 void MapHUD::Draw(sf::RenderWindow& app, int time) {
 	Update();
+	
+	UIElement::Draw(app, time);
 
 	app.draw(textLife);
 	app.draw(text—oin);
