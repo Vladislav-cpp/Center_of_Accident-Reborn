@@ -1,6 +1,6 @@
 #pragma once
 #include <memory>
-#include <vector>
+#include <map>
 #include <Screen.h>
 #include <UIEventEvents.h>
 #include <EventBus.h>
@@ -10,12 +10,7 @@
 #include "MainMenuScreen.h"
 #include "GlobalOverlay.h"
 #include "Config.h"
-#include "ActionHandler.h"
-#include "ClientEvents.h"
-
-namespace sf {
-	class Event;
-}	
+#include "ClientEvents.h"	
 
 
 class ScreenManager {
@@ -28,17 +23,18 @@ public:
 
 private:
 	void Push(std::unique_ptr<Screen>);
-	void Pop();
 
 private:
 	Screen* Current();
+	std::vector<Screen*> OpenScreens();
 
 private:
 	EventBus& m_mModelEvents;
 	std::shared_ptr<EventBus> m_mUIEvents = nullptr;
 
 private:
-	std::vector<std::unique_ptr<Screen>> m_xStack;
+	std::map<ScreenSubType, std::unique_ptr<Screen>> m_xStack;
+	std::vector<ScreenSubType> m_xCurrentScreens;
 
 	sf::View m_mView;
 
@@ -52,9 +48,6 @@ private:
 	void SubscribeToEvents();
 
 private:
-	GameScreen*			m_mGameScreen		= nullptr;
-	GlobalOverlay*		m_mGlobalOverlay	= nullptr;
-	MainMenuScreen*		m_mMainMenuScreen	= nullptr;
 
 	sf::RenderWindow*	m_mWindow			= nullptr;
 };

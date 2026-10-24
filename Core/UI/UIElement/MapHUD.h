@@ -23,6 +23,6 @@ class MapHUD : public UIElement {
 	sf::Text textLife;
 
 	private:
-	std::shared_ptr<PlayerCharacter> player;
+	const std::shared_ptr<PlayerCharacter> player;
 };
 

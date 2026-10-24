@@ -56,6 +56,8 @@ void ClientApplication::OnOnlineGame(const OnlineGameRequestedEvent& event) {
 
 void ClientApplication::OnOfflineGame(const OfflineGameRequestedEvent& event) {
 	m_mState->mode = ApplicationMode::OfflineGame;
+
+	m_mGame->InitializeOffline();
 }
 
 void ClientApplication::OnReturnToInterface(const ReturnToInterfaceRequestedEvent& event) {

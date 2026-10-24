@@ -15,13 +15,26 @@
     X( Shield )             \
     X( ConnectionState )    \
     X( MainMenuStart )      \
-    X( MainMenuOption )     \
+    X( MainMenuOption )     
 
 
 
 enum class UIType {
 #define AS_ENUM(name) name,
     UI_TYPE_LIST(AS_ENUM)
+#undef AS_ENUM
+};
+
+#define SCREEN_SUB_TYPE_LIST(X) \
+    X( None )                   \
+    X( MainMenu )               \
+    X( GameScreen )             \
+    X( GlobalOverlay )          
+
+
+enum class ScreenSubType {
+#define AS_ENUM(name) name,
+    SCREEN_SUB_TYPE_LIST(AS_ENUM)
 #undef AS_ENUM
 };
 

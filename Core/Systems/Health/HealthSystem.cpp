@@ -13,7 +13,9 @@ const int ImmunityDuration = 5; // second
 void HealthSystem::Update(ServerNetworkSystem* network) {
     ProcessDestroy();
 
-    ProcessResurrectPlayer(network);
+    if(network != nullptr) {
+        ProcessResurrectPlayer(network);
+    }
 }
 
 void HealthSystem::ProcessDestroy() {

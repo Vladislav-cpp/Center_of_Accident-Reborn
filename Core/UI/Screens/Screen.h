@@ -19,6 +19,9 @@ class Screen : public UIElement  {
 	virtual void OnClose() = 0;
 
 	public:
+	ScreenSubType GetSubType() const { return m_xSubType; }
+
+	public:
 	virtual bool HandleEvent(const sf::Event&) = 0;
 	virtual void Draw(float dt = 0) = 0;
 
@@ -28,4 +31,6 @@ class Screen : public UIElement  {
 	protected:
 	sf::RenderWindow& m_xWindow;
 	std::shared_ptr<EventBus> m_mUIEvents = nullptr;
+
+	ScreenSubType m_xSubType = ScreenSubType::None;
 };

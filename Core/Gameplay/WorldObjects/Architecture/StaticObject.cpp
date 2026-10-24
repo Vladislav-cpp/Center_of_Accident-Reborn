@@ -2,11 +2,11 @@
 #include "UIElement.h"
 #include "IStats.h"
 
-int StaticObject::ID() {
+int StaticObject::ID() const {
 	return m_iID;
 }
 
-sf::Vector2f StaticObject::Coord() {
+sf::Vector2f StaticObject::Coord() const {
 	return m_vCoord;
 }
 
@@ -44,7 +44,7 @@ void StaticObject::UpdateViewCoord() {
 	for(auto const& [type, view] : m_vUIViews) view->SetCoord(m_vCoord);
 }
 
-UIElement* StaticObject::GetUI(UIType type){
+UIElement* StaticObject::GetUI(UIType type) const {
 	auto it = m_vUIViews.find(type);
 	return (it != m_vUIViews.end()) ? it->second : nullptr;
 }

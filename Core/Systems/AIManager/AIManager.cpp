@@ -7,7 +7,7 @@
 #include <cmath>
 #include <limits>
 
-void AIManager::Update() {
+void AIManager::Update(float dt) {
 	for (auto& point : m_xSpawnPoints) {
 
 		if( point.m_iSpawned >= point.m_iMaxBots || !point.m_xSpawnTimer.IsFinished() ) continue;
@@ -20,6 +20,8 @@ void AIManager::Update() {
 	}
 
 	UpdateTargets();
+
+	for( auto& ai : WAIPlayers() ) for( auto& comand : ai->GetController()->GenerateCommands(dt) ) comand->Execute();
 }
 
 void AIManager::SpawnBotAt(SpawnPoint& point) {

@@ -26,7 +26,7 @@ void HPLabel::SetHP(int hp) {
     if(m_iMaxHp <= 0) m_iMaxHp = 1;
 
     if(hp==0) {
-        __debugbreak();
+        //__debugbreak();
     }
 
     m_HPPercent = std::max(0.f, std::min(1.f, hp / float(m_iMaxHp)));

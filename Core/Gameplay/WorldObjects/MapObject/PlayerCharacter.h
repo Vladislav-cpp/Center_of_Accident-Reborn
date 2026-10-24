@@ -1,5 +1,6 @@
 #pragma once
 #include "MovableObject.h"
+#include "HumenPlayerController.h"
 
 class PlayerCharacter : public MovableObject {
 	public:
@@ -30,4 +31,7 @@ class PlayerCharacter : public MovableObject {
 	virtual void ApplyDamage(int damage) override {
 		if( !IsInvulnerable() ) MovableObject::ApplyDamage(damage);
 	}
+
+	// TODO біда з цим контролером, тому що  GenerateCommands(const InputState& state); не можна звести один для аі і гравця
+	HumenPlayerController& GetHumenController() { return static_cast<HumenPlayerController&>(*m_pController); } 
 };

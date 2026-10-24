@@ -24,13 +24,13 @@ void ScreenManager::Initialize() {
 
 	m_mWindow->setView(m_mView);
 
-	ActionHandler::Instance().SetWindow(m_mWindow);
-
-	m_mGameScreen		= new GameScreen(		*m_mWindow, m_mUIEvents);
-	m_mGlobalOverlay	= new GlobalOverlay(	*m_mWindow, m_mUIEvents);
-	m_mMainMenuScreen	= new MainMenuScreen(	*m_mWindow, m_mUIEvents);
+	Push( std::make_unique<GameScreen>(		*m_mWindow, m_mUIEvents) );
+	Push( std::make_unique<GlobalOverlay>(	*m_mWindow, m_mUIEvents) );
+	Push( std::make_unique<MainMenuScreen>(	*m_mWindow, m_mUIEvents) );
 
 	SubscribeToEvents();
+
+	m_xCurrentScreens.push_back(ScreenSubType::MainMenu);
 }
 
 void ScreenManager::SubscribeToEvents() {
@@ -41,6 +41,13 @@ void ScreenManager::SubscribeToEvents() {
 		}
 	);
 
+	// --- Model -> UI ---
+
+	m_mModelEvents.Subscribe<OfflineGameStart>(
+		[this](const OfflineGameStart& UIdata) {
+			m_mUIEvents->Publish(HUDInitData{ UIdata.player });
+		});
+
 }
 
 void ScreenManager::OnButtonPressed(const ButtonPressed& event) {
@@ -49,17 +56,21 @@ void ScreenManager::OnButtonPressed(const ButtonPressed& event) {
 
 		case UIType::MainMenuStart: {
 			// Handle start button press
-			Pop();
 			
-			//Push();
-			m_mModelEvents.Publish<OnlineGameRequestedEvent>({});
+			
+			m_xCurrentScreens.clear();
+			//TODO need m_xCurrentScreens.push_back(ScreenSubType::GlobalOverlay);
+			// тут потрібно або на таймер підвязати GlobalOverlay і після нього при умові ( все завантажилось) запускати GameScreen;
+			m_xCurrentScreens.push_back(ScreenSubType::GameScreen);
+			//m_mModelEvents.Publish<OnlineGameRequestedEvent>({});
+			m_mModelEvents.Publish<OfflineGameRequestedEvent>({});
 			break;
 		}
 
-		//case UIType::MainMenuOption: {
-			// Handle option button press
-		//	break;
-		//}
+		case UIType::MainMenuOption: {
+			 //Handle option button press
+			break;
+		}
 
 		//case UIType::Back: {
 		//	Pop();

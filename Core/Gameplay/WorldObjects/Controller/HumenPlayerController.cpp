@@ -1,9 +1,9 @@
 #include "HumenPlayerController.h"
 #include "InputState.h"
 #include <SFML/Graphics.hpp>
-#include "ActionHandler.h"
 #include "GameTime.h"
 #include "StaticObject.h"
+#include "InputState.h"
 
 #define Key sf::Keyboard::Key // sf::Mouse::Button::Left
 #define isKeyPressed sf::Keyboard::isKeyPressed
@@ -26,34 +26,31 @@ void HumenPlayerController::SetPlayer(std::shared_ptr<StaticObject> Object) {
 }
 
 
-std::vector<std::unique_ptr<Command>> HumenPlayerController::GenerateCommands(float dt) {
+std::vector<std::unique_ptr<Command>> HumenPlayerController::GenerateCommands(const InputState& state) {
 	std::vector<std::unique_ptr<Command>> commands;
 
-	if( auto moveCommand = CreateMoveCommand(dt); moveCommand != nullptr )		commands.push_back( std::move(moveCommand) );
-	if( auto attackCommand = CreateAttackCommand(); attackCommand != nullptr ) commands.push_back( std::move(attackCommand) );
+	if( auto moveCommand = CreateMoveCommand(state); moveCommand != nullptr )		commands.push_back( std::move(moveCommand) );
+	if( auto attackCommand = CreateAttackCommand(state); attackCommand != nullptr ) commands.push_back( std::move(attackCommand) );
 
 	return commands;
 }
 
-std::unique_ptr<MovementCommand> HumenPlayerController::CreateMoveCommand(float dt) {
-	auto state = ActionHandler::Instance().ActionsImput();
+std::unique_ptr<MovementCommand> HumenPlayerController::CreateMoveCommand(const InputState& state) {
 	if( !state.bMove ) return nullptr;
 
 	auto comand = std::make_unique<MovementCommand>();
 	
-	float shift = dt * m_pObject->GetPrototpe()->speedMovement.value();
 	auto [offsetX, ofsetY] = state.moveOffset;
 
-	comand->SetShift( {offsetX * shift, ofsetY * shift} );
+	comand->SetShift( {offsetX, ofsetY} );
 	comand->SetObject( m_pObject );
 
 	return comand;
 }
 
-std::unique_ptr<FireCommand> HumenPlayerController::CreateAttackCommand() {
+std::unique_ptr<FireCommand> HumenPlayerController::CreateAttackCommand(const InputState& state) {
 	if( !m_pAttacktimer->IsFinished() ) return nullptr;
 
-	auto state = ActionHandler::Instance().ActionsImput();
 	if( !state.bFire ) return nullptr;
 
 	m_pAttacktimer->Restart();

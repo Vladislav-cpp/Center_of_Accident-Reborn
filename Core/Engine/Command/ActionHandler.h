@@ -1,30 +1,27 @@
 #pragma once
 
-#include <SFML/System/Vector2.hpp>
-#include <SFML/Graphics.hpp>
-#include <tuple>
+#include <SFML/Graphics/RenderWindow.hpp>
+#include <SFML/Window/Event.hpp>
 #include "ImplSingleton.h"
-#include "InputState.h"
 
-class Command;
+#include "InputState.h"
 
 class ActionHandler : public ImplSingleton<ActionHandler> {
 	friend class ImplSingleton<ActionHandler>;
+public:
+    void SetWindow(sf::RenderWindow* window);
 
-	public:
-	void SetWindow(sf::RenderWindow* window);
+    void ActionsImput(const sf::Event& event);
+    InputState Update();
 
-	public:
-	InputState ActionsImput();
-	void Clean();
+private:
+    sf::RenderWindow* m_xWindow = nullptr;
+    InputState m_xState;
 
-	private:
-	std::tuple<bool, sf::Vector2f> GetMovementInput();
-	std::tuple<bool, sf::Vector2f> GetFireInput();
+    bool m_bWPressed = false;
+    bool m_bSPressed = false;
+    bool m_bAPressed = false;
+    bool m_bDPressed = false;
 
-	private:
-	bool m_bFilledState = false;
-	InputState m_xState;
-	sf::RenderWindow* m_xWindow;
+    bool m_bLeftMousePressed = false;
 };
-

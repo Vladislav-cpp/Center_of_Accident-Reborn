@@ -5,7 +5,6 @@
 #include <sstream>
 #include "Config.h"
 #include "Utility.hpp"
-#include "ActionHandler.h"
 #include <SFML/System/Vector2.hpp>
 #include "CharacterFactory.h"
 #include "StaticStatsUfo.h"
@@ -96,6 +95,7 @@ int main() {
 }
 
 // todo зробить іконку що крутиться і показує статус зєднання з сервером, далі зробити кнопку приєднання до сервера / офлайн
-// * доробити eventBus 
+//+  * доробити eventBus 
 // розібратися з тим що є 2 config файла 
 // розібратисьб з тим що є Engine а що є Systems
+// зробити щоб рух був за часом а не за швидкістю цикла + перевірити колізію не маємо своїми снарядами себе бити

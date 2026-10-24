@@ -21,5 +21,5 @@ class GameScreen : public Screen {
 	UIElement m_uBackground;
 
 	// заготовка під HUD
-	MapHUD* m_pHUD;
+	MapHUD* m_pHUD = nullptr;
 };

@@ -4,11 +4,11 @@
 #include "ClientNetworkSystem.h"
 #include "Render.h"
 #include "ScreenManager.h"
-#include "ActionHandler.h"
 #include "Config.h"
 #include "TimeSystem.h"
 #include "EventBus.h"
 #include "GameState.h"
+#include "ActionHandler.h"
 
 ClientApplication::ClientApplication() {
 	Initialize();
@@ -21,24 +21,33 @@ ClientApplication::~ClientApplication() {
 	delete m_mState;
 	delete m_mModelEvents;
 	delete m_mWindow;
+	delete m_mRender;
 }
 
 void ClientApplication::Initialize() {
-	m_mModelEvents = new EventBus();
-
-	m_mState	= new GameState(); 
-	m_mNetwork	= new ClientNetworkSystem(	*m_mModelEvents );
-	m_mScreens	= new ScreenManager(		m_mWindow, *m_mModelEvents );
-	m_mGame		= new GameController(		*m_mModelEvents );
-
-	CFG().windowWidth = 1000;
-	CFG().windowHeight = 563;
-
 	m_mWindow = new sf::RenderWindow(
 		sf::VideoMode({1000, 563}),
 		"Accident Center 2",
 		sf::State::Windowed
 	);
+
+	
+
+
+	ActionHandler::Instance().SetWindow(m_mWindow);
+
+	m_mModelEvents = new EventBus();
+	m_mRender	= new Render(*m_mWindow);
+	m_mState	= new GameState(); 
+	m_mNetwork	= new ClientNetworkSystem(	*m_mModelEvents );
+	m_mScreens	= new ScreenManager(		m_mWindow, *m_mModelEvents );
+	m_mGame		= new GameController(		*m_mState,  *m_mModelEvents );
+
+
+	CFG().windowWidth = 1000;
+	CFG().windowHeight = 563;
+
+
 
 	m_mScreens->Initialize();
 
@@ -83,6 +92,8 @@ void ClientApplication::ProcessEvents() {
 			continue;
 		}
 
+		if(m_mState->m_xPlayer) m_mGame->HandleEvent(*event);
+
 		// якщо це не натиск на UI, то дивимось хто в нас щє приймає клікі
 		
 		
@@ -93,11 +104,12 @@ void ClientApplication::ProcessEvents() {
 void ClientApplication::Draw(float dt) {
 	m_mWindow->clear();
 
+
+	m_mScreens->Draw(dt);
+
 	if(m_mState->mode == ApplicationMode::OnlineGame || m_mState->mode == ApplicationMode::OfflineGame) {
 		m_mRender->DrawWorld(dt, true);
 	}
-
-	m_mScreens->Draw(dt);
 
 	m_mWindow->display();
 }

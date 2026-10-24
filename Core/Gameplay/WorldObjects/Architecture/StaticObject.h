@@ -16,8 +16,8 @@ class StaticObject : public std::enable_shared_from_this<StaticObject> {
 	StaticObject() = default;
 
 	public:
-	int ID();
-	sf::Vector2f Coord();
+	int ID() const;
+	sf::Vector2f Coord() const;
 
 	public:
 	virtual void SetCoord(sf::Vector2f coord);
@@ -41,10 +41,10 @@ class StaticObject : public std::enable_shared_from_this<StaticObject> {
 
 	public:
 	virtual const std::unique_ptr<IStaticStatsBase>& GetPrototpe() { return m_pStaticStats; };
-	virtual UIElement* GetUI() { return GetUI(UIType::Main); };
-	virtual UIElement* GetUI(UIType type);
-	virtual const IStaticStatsBase& GetStaticStats() { return *m_pStaticStats.get(); }
-	virtual const IDynamicStatsBase& GetDynamicStats() { return *m_pDynamicStats.get(); }
+	virtual UIElement* GetUI() const { return GetUI(UIType::Main); };
+	virtual UIElement* GetUI(UIType type) const;
+	virtual const IStaticStatsBase& GetStaticStats() const { return *m_pStaticStats.get(); }
+	virtual const IDynamicStatsBase& GetDynamicStats() const { return *m_pDynamicStats.get(); }
 
 	public:
 	virtual const void Draw(sf::RenderWindow& window, float time);

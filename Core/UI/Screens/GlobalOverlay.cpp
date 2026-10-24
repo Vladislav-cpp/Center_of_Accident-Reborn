@@ -10,6 +10,8 @@ const static std::map<net::ConnectionState, std::string> s_connectionImages = {
  
 GlobalOverlay::GlobalOverlay(sf::RenderWindow& window, std::shared_ptr<EventBus> m_mUIEvents) : Screen(window, m_mUIEvents) {
 
+	m_xSubType = ScreenSubType::GlobalOverlay;
+
 	auto objects = reflection::Ref.m_xUI_Objects;
 
 	auto it = std::find_if(objects.begin(), objects.end(),

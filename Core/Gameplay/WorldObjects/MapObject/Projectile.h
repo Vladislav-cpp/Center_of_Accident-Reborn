@@ -7,7 +7,9 @@
 class Projectile : public AICharacter {
 	public:
 	Projectile(sf::Vector2f startCoord, sf::Vector2f targetCoord) : m_vStartCoord(startCoord), m_vTargetCoord(targetCoord) {
-		m_vCoord = m_vStartCoord;
+		m_vCoord = m_vStartCoord;// TODO міняти через функцію зоб викликалось автоматично OnCoordChange
+		OnCoordChange();
+
 		auto [st_x, st_y] = m_vStartCoord;
 		auto [tg_x, tg_y] = m_vTargetCoord;
 

@@ -12,7 +12,7 @@ class HealthSystem : public ImplSingleton<HealthSystem> {
     HealthSystem() = default;
     ~HealthSystem() = default;
 
-    void Update(ServerNetworkSystem* network);
+    void Update(ServerNetworkSystem* network = nullptr);
 
     private:
     void ProcessDestroy();

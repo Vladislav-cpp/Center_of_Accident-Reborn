@@ -10,6 +10,8 @@ static const std::string m_sMusic = "Resources/sound and music/background music.
 
 GameScreen::GameScreen(sf::RenderWindow& window, std::shared_ptr<EventBus> m_mUIEvents) : Screen(window, m_mUIEvents) {
 
+	m_xSubType = ScreenSubType::GameScreen;
+
 	m_uBackground.SetData("Resources/images/background.png", {0, 0},{ CFG().mapWidth , CFG().mapHeight }, 0, 0 );
 
 
@@ -17,6 +19,11 @@ GameScreen::GameScreen(sf::RenderWindow& window, std::shared_ptr<EventBus> m_mUI
 	//SoundMg().PlayMusic( m_sMusic, true, 70.f );
 
 	// TODO m_pHUD = new MapHUD(m_xScreens.m_xSession.m_xPlayer);
+
+	m_mUIEvents->Subscribe<HUDInitData>([this](const HUDInitData& uiData) {
+		m_pHUD = new MapHUD(uiData.player);
+	});
+
 }
 
 GameScreen::~GameScreen() {

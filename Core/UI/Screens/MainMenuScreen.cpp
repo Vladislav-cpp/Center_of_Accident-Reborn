@@ -7,6 +7,8 @@ static const std::string m_sMusicMenu = "Resources/sound and music/music for the
 MainMenuScreen::MainMenuScreen(sf::RenderWindow& window, std::shared_ptr<EventBus> m_mUIEvents) 
 							: Screen(window, m_mUIEvents), m_xCursor(sf::Cursor::Type::Arrow) {
 
+	m_xSubType = ScreenSubType::MainMenu;
+
 	// --- BACKGROUND ---
 	m_uMenu.SetData("Resources/images/menu/game__menu.png", {0, 0}, { CFG().mapWidth, CFG().mapHeight }, 0, 0 );// прибрати це має бути в MainMenuScreen
 	m_uMenu.GetxTexture().setSmooth(true);
@@ -52,7 +54,7 @@ bool MainMenuScreen::HandleEvent(const sf::Event& e) {
 		return true;
 
 	} else if( sf::IntRect({451, 216}, {159, 49}).contains(mousePos) )  {
-	/* OnOption() */;
+		OnOption();
 		return true;
 	}
 
@@ -83,4 +85,12 @@ void MainMenuScreen::OnStart() {
 	//SoundMg().StopMusic( m_sMusicMenu );
 
 	//ClientGame::SendGameRequest()
+}
+
+void MainMenuScreen::OnOption() {
+	
+
+	m_mUIEvents->Publish( ButtonPressed{ m_uOption.m_xType } );
+
+	//SoundMg().StopMusic( m_sMusicMenu );
 }

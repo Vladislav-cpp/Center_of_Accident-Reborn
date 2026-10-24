@@ -2,15 +2,8 @@
 #include "Screen.h"
 
 void ScreenManager::Push(std::unique_ptr<Screen> screen) {
-	m_xStack.push_back(std::move(screen));
-}
-
-void ScreenManager::Pop() {
-
-	if( !m_xStack.empty() ) {
-		m_xStack.pop_back();
-	}
-
+	const ScreenSubType type = screen->GetSubType();
+	m_xStack.emplace(type, std::move(screen));
 }
 
 bool ScreenManager::HandleEvent(const sf::Event& e) {
@@ -24,14 +17,41 @@ bool ScreenManager::HandleEvent(const sf::Event& e) {
 
 void ScreenManager::Draw(float dt) {
 
-	//TODO можливість малювати більше ніж 1 скрін
-	if( auto* screen = Current() ) {
+	for( auto* screen:OpenScreens() ) {
 		screen->Draw(dt);
 	}
 }
 
 Screen* ScreenManager::Current() {
-	return m_xStack.empty() ? nullptr : m_xStack.back().get();
+
+    if (m_xCurrentScreens.empty()) {
+        return nullptr;
+    }
+
+    auto it = m_xStack.find(m_xCurrentScreens.back());
+
+    if (it == m_xStack.end()) {
+        return nullptr;
+    }
+
+    return it->second.get();
+}
+
+std::vector<Screen*> ScreenManager::OpenScreens() {
+
+    std::vector<Screen*> screens;
+    screens.reserve(m_xCurrentScreens.size());
+
+    for(ScreenSubType type : m_xCurrentScreens) {
+
+        auto it = m_xStack.find(type);
+
+        if( it != m_xStack.end() ) {
+            screens.push_back( it->second.get() );
+        }
+    }
+
+    return screens;
 }
 
 #include "INI_ScreenManagerExtensions.h"

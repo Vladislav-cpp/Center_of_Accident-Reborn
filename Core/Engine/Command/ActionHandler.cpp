@@ -1,49 +1,93 @@
 #include "ActionHandler.h"
-#include "MovementCommand.h"
-#include "FireCommand.h"
-#include "InputState.h"
-#include <SFML/Window.hpp>
+
+#include <SFML/Window/Keyboard.hpp>
+#include <SFML/Window/Mouse.hpp>
 
 void ActionHandler::SetWindow(sf::RenderWindow* window) {
-	m_xWindow = window;
+    m_xWindow = window;
 }
 
-#define Key sf::Keyboard::Key // sf::Mouse::Button::Left
-#define isKeyPressed sf::Keyboard::isKeyPressed
-#define Button sf::Mouse::Button
-#define isButtonPressed sf::Mouse::isButtonPressed
+void ActionHandler::ActionsImput(const sf::Event& event) {
 
-std::tuple<bool, sf::Vector2f> ActionHandler::GetMovementInput() {
-	sf::Vector2f moveDir(0.f, 0.f);
+    if(const auto* key = event.getIf<sf::Event::KeyPressed>()) {
+        switch(key->code) {
+            case sf::Keyboard::Key::W: m_bWPressed = true; break;
+            case sf::Keyboard::Key::S: m_bSPressed = true; break;
+            case sf::Keyboard::Key::A: m_bAPressed = true; break;
+            case sf::Keyboard::Key::D: m_bDPressed = true; break;
+            default: break;
+        }
+    }
 
-	if( isKeyPressed(Key::W) ) moveDir.y -= 1.f; //|| isKeyPressed(Key::Up	)
-	if( isKeyPressed(Key::S) ) moveDir.y += 1.f; //|| isKeyPressed(Key::Down	)
-	if( isKeyPressed(Key::A) ) moveDir.x -= 1.f; //|| isKeyPressed(Key::Left	)
-	if( isKeyPressed(Key::D) ) moveDir.x += 1.f; //|| isKeyPressed(Key::Right	)
+    if(const auto* key = event.getIf<sf::Event::KeyReleased>()) {
+        switch(key->code) {
+            case sf::Keyboard::Key::W: m_bWPressed = false; break;
+            case sf::Keyboard::Key::S: m_bSPressed = false; break;
+            case sf::Keyboard::Key::A: m_bAPressed = false; break;
+            case sf::Keyboard::Key::D: m_bDPressed = false; break;
+            default: break;
+        }
+    }
 
-	bool isMoving = (moveDir.x != 0.f || moveDir.y != 0.f);
-	return { isMoving, moveDir };
+    if( const auto* mouse = event.getIf<sf::Event::MouseButtonPressed>() ) {
+
+        if(mouse->button == sf::Mouse::Button::Left) {
+            m_bLeftMousePressed = true;
+        }
+    }
+
+    if( const auto* mouse = event.getIf<sf::Event::MouseButtonReleased>() ) {
+
+        if( mouse->button == sf::Mouse::Button::Left ) {
+            m_bLeftMousePressed = false;
+        }
+    }
+
+    // Якщо вікно втратило фокус — скидаємо стани.
+    // можна це не завжди робити , можна винести в налаштування
+    if( event.is<sf::Event::FocusLost>() ) {
+        m_bWPressed = false;
+        m_bSPressed = false;
+        m_bAPressed = false;
+        m_bDPressed = false;
+        m_bLeftMousePressed = false;
+    }
 }
 
-std::tuple<bool, sf::Vector2f> ActionHandler::GetFireInput() {
-	return { isButtonPressed(Button::Left), m_xWindow->mapPixelToCoords(sf::Mouse::getPosition( *m_xWindow )) };
-}
+InputState ActionHandler::Update() {
 
-InputState ActionHandler::ActionsImput() {
-	if(m_bFilledState) return m_xState;
-	else m_bFilledState = true;
+    if( !m_xWindow || !m_xWindow->hasFocus() ) {
+        m_bWPressed = false;
+        m_bSPressed = false;
+        m_bAPressed = false;
+        m_bDPressed = false;
+        m_bLeftMousePressed = false;
+    } else {
+        // Перевіряємо фактичний стан клавіш щокадру.
+        m_bWPressed = sf::Keyboard::isKeyPressed( sf::Keyboard::Key::W );
+        m_bSPressed = sf::Keyboard::isKeyPressed( sf::Keyboard::Key::S );
+        m_bAPressed = sf::Keyboard::isKeyPressed( sf::Keyboard::Key::A );
+        m_bDPressed = sf::Keyboard::isKeyPressed( sf::Keyboard::Key::D );
 
-	std::tie( m_xState.bMove, m_xState.moveOffset )		= GetMovementInput();
-	std::tie( m_xState.bFire, m_xState.mousePosition )	= GetFireInput();
+        // Перевіряємо фактичний стан кнопки миші.
+        m_bLeftMousePressed = sf::Mouse::isButtonPressed( sf::Mouse::Button::Left );
 
- 	return m_xState;
-}
+        // Оновлюємо позицію курсора.
+        m_xState.mousePosition = m_xWindow->mapPixelToCoords( sf::Mouse::getPosition(*m_xWindow) );
+    }
 
-void ActionHandler::Clean() {
-	m_bFilledState = false;
+    // Розраховуємо напрямок руху.
+    sf::Vector2f moveDir(0.f, 0.f);
 
-	m_xState.bFire = false;
-	m_xState.bMove = false;
-	m_xState.mousePosition = {0, 0};
-	m_xState.moveOffset = {0, 0};
+    if(m_bWPressed) moveDir.y -= 1.f;
+    if(m_bSPressed) moveDir.y += 1.f;
+    if(m_bAPressed) moveDir.x -= 1.f;
+    if(m_bDPressed) moveDir.x += 1.f;
+
+    m_xState.moveOffset = moveDir;
+    m_xState.bMove = (moveDir.x != 0.f || moveDir.y != 0.f);
+
+    m_xState.bFire = m_bLeftMousePressed;
+
+    return m_xState;
 }

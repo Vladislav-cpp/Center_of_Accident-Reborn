@@ -12,12 +12,13 @@ class HumenPlayerController : public IPlayerController {
 	virtual ~HumenPlayerController();
 
 	public:
-	virtual std::vector<std::unique_ptr<Command>> GenerateCommands(float dt) override;
+	virtual std::vector<std::unique_ptr<Command>> GenerateCommands(const InputState& state);
+	virtual std::vector<std::unique_ptr<Command>> GenerateCommands(float dt) { return std::vector<std::unique_ptr<Command>>();};
 	virtual void SetPlayer(std::shared_ptr<StaticObject> Object) override;
 
 	private:
-	std::unique_ptr<MovementCommand> CreateMoveCommand(float dt);
-	std::unique_ptr<FireCommand> CreateAttackCommand();
+	std::unique_ptr<MovementCommand> CreateMoveCommand(const InputState& state);
+	std::unique_ptr<FireCommand> CreateAttackCommand(const InputState& state);
 
 	private:
 	GameTimer* m_pAttacktimer;

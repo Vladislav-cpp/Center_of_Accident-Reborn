@@ -17,6 +17,7 @@ class MainMenuScreen : public Screen {
 	virtual void Draw(float dt) override;
 
 	void OnStart();
+	void OnOption();
 
 	virtual void OnOpen() override {};
 	virtual void OnClose() override {};

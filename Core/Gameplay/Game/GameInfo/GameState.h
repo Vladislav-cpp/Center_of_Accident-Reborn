@@ -34,7 +34,7 @@ class GameState {
 	std::shared_ptr<NetData> m_xNetData;
 
 	public:
-	GamePhase state = GamePhase::MainMenu;
+	GamePhase phase = GamePhase::MainMenu;
 	ApplicationMode mode = ApplicationMode::Interface;
 };
 
