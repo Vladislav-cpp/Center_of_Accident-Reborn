@@ -28,6 +28,9 @@ void ScreenManager::Initialize() {
 	Push( std::make_unique<GlobalOverlay>(	*m_mWindow, m_mUIEvents) );
 	Push( std::make_unique<MainMenuScreen>(	*m_mWindow, m_mUIEvents) );
 
+	GameScreen* gameScreen = dynamic_cast<GameScreen*>( m_xStack[ScreenSubType::GameScreen].get() );
+	gameScreen->SetView( &m_mView );
+
 	SubscribeToEvents();
 
 	m_xCurrentScreens.push_back(ScreenSubType::MainMenu);

@@ -3,13 +3,6 @@
 #include <SFML/Graphics.hpp>
 #include "GameTime.h"
 #include "StaticObject.h"
-#include "InputState.h"
-
-#define Key sf::Keyboard::Key // sf::Mouse::Button::Left
-#define isKeyPressed sf::Keyboard::isKeyPressed
-#define Button sf::Mouse::Button
-#define isButtonPressed sf::Mouse::isButtonPressed
-
 
 HumenPlayerController::HumenPlayerController() {
 	m_pAttacktimer = new GameTimer();

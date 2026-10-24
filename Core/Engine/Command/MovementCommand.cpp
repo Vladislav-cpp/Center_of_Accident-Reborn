@@ -11,6 +11,6 @@ void MovementCommand::SetShift(sf::Vector2f ShiftXY) {
 }
 
 void MovementCommand::SetDT(float dt) {
-	auto shiftDt = dt * m_pObject->GetPrototpe()->speedMovement.value();
-	m_fShiftXY = m_fShiftXY * shiftDt;
+	const float speed = m_pObject->GetPrototpe()->speedMovement.value();
+	m_fShiftXY *= speed * dt;
 }

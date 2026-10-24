@@ -4,6 +4,7 @@
 
 class MapHUD;
 class EventBus;
+class PlayerCharacter;
 
 class GameScreen : public Screen {
 	public:
@@ -17,9 +18,13 @@ class GameScreen : public Screen {
 	virtual void OnOpen() override {};
 	virtual void OnClose() override {};
 
+	void SetView(sf::View* view) {m_mView = view; };
+
 	private:
 	UIElement m_uBackground;
 
 	// заготовка під HUD
 	MapHUD* m_pHUD = nullptr;
+	sf::View* m_mView = nullptr;
+	std::shared_ptr<const PlayerCharacter> player = nullptr;
 };

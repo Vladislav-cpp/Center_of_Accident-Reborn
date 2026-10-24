@@ -10,7 +10,7 @@ const static std::string s_sSheet = "Resources/images/Sprite Sheet.png";
 const static std::string s_sMistral = "Resources/type/Mistral.ttf";
 // coin(s_sCoin, 0, 0, 15, 16, 16, 8),
 // life_(s_sSheet, 0, 0, 35, 32, 0, 0),
-MapHUD::MapHUD(const std::shared_ptr<PlayerCharacter> pl)
+MapHUD::MapHUD(std::shared_ptr<const PlayerCharacter> pl)
 	: player(pl), text—oin(font, { "x"+std::to_string( 0 ) }, 35), textLife(font, "x"+std::to_string( 0 ), 35) {
 	
 	assert( font.openFromFile(s_sMistral) ); // "Font file not found or could not be opened"

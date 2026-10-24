@@ -1,6 +1,6 @@
 #include "DestructibleObject.h"
 
-int DestructibleObject::HP() {
+int DestructibleObject::HP() const {
 	return m_pDynamicStats->m_iHP;
 }
 

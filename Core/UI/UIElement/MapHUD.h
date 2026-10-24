@@ -5,7 +5,7 @@ class PlayerCharacter;
 
 class MapHUD : public UIElement {
 	public:
-	MapHUD(std::shared_ptr<PlayerCharacter> pl);
+	MapHUD(std::shared_ptr<const PlayerCharacter> pl);
 
 	public:
 	void Draw(sf::RenderWindow& app, int time = 0);
@@ -23,6 +23,6 @@ class MapHUD : public UIElement {
 	sf::Text textLife;
 
 	private:
-	const std::shared_ptr<PlayerCharacter> player;
+	std::shared_ptr<const PlayerCharacter> player;
 };
 

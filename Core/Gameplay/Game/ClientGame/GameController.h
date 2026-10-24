@@ -4,6 +4,7 @@
 
 class EventBus;
 class GameState;
+class InputState;
 
 namespace sf {
 	class Event;
@@ -25,7 +26,7 @@ public:
 	void UpdateOffline(float dt);
 
 public:
-	bool HandleEvent(const sf::Event& e);
+	bool HandleEvent(const InputState& state);
 
 private:
 	EventBus& m_mModelEvents;

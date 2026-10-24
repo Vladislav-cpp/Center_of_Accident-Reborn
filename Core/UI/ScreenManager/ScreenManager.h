@@ -38,9 +38,8 @@ private:
 
 	sf::View m_mView;
 
-	private:
-
-public:
+private: //TODO
+public: // ...
 	void Initialize();
 
 private:

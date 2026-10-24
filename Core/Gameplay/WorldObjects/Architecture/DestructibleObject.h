@@ -11,7 +11,7 @@ class DestructibleObject : public StaticObject {
 	DestructibleObject() = default;
 
 	public:
-	int HP();
+	int HP() const;
 	virtual void SetHP(int hp);
 	virtual void ApplyDamage(int damage);
 

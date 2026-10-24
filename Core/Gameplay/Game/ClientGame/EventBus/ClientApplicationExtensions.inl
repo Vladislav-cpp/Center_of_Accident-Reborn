@@ -58,6 +58,8 @@ void ClientApplication::OnOfflineGame(const OfflineGameRequestedEvent& event) {
 	m_mState->mode = ApplicationMode::OfflineGame;
 
 	m_mGame->InitializeOffline();
+
+	if(m_mState->m_xPlayer) m_mModelEvents->Publish<OfflineGameStart>({m_mState->m_xPlayer});
 }
 
 void ClientApplication::OnReturnToInterface(const ReturnToInterfaceRequestedEvent& event) {

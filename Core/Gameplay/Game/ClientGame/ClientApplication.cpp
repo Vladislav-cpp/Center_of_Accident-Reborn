@@ -92,13 +92,20 @@ void ClientApplication::ProcessEvents() {
 			continue;
 		}
 
-		if(m_mState->m_xPlayer) m_mGame->HandleEvent(*event);
+		ActionHandler::Instance().ActionsImput(*event);//TODO тут біда з цією обробкою подій треба якось це покращити 
+													   // хоча поки непогано m_mScreens заберає події на себе 
+													   // ActionHandler сам знає коли кнопки відпустились 
 
 		// якщо це не натиск на UI, то дивимось хто в нас щє приймає клікі
-		
-		
-
 	}
+
+	// івенти не генеруються якщо ми холдимо кнопки тому це не в циклі 
+	// біда в тому якщо буде холд потрібен для UI то ми це не зловимо тому треба щось придумать кращє
+
+	InputState input = ActionHandler::Instance().Update();
+
+	if(m_mState->m_xPlayer) m_mGame->HandleEvent(input);
+
 }
 
 void ClientApplication::Draw(float dt) {

@@ -12,6 +12,7 @@
 #include "HumenPlayerController.h"
 #include "ActionHandler.h"
 #include "World.h"
+#include "InputState.h"
 
 void GameController::InitializeOnline() {
 
@@ -45,8 +46,6 @@ void GameController::UpdateOnline(float dt) {
 
 void GameController::UpdateOffline(float dt) {
 
-	//for( auto& ai : WAIPlayers() ) for( auto& comand : ai->GetController()->GenerateCommands(dt) ) comand->Execute();
-
 	for(auto& c : m_mCommand) {
 
 		if(MovementCommand* movement = dynamic_cast<MovementCommand*>(c.get()) ) {
@@ -62,16 +61,15 @@ void GameController::UpdateOffline(float dt) {
 
 	CollSys().UpdateCollisions();
 	HealthSys().Update();
+
+
+	m_mCommand.clear();
 }
 
-bool GameController::HandleEvent(const sf::Event& event) {
-
-
-	ActionHandler::Instance().ActionsImput(event);
-
-	InputState input = ActionHandler::Instance().Update();
+bool GameController::HandleEvent(const InputState& state) {
+	//if( !m_mCommand.empty() ) return false;
 	
-	auto commands = m_mState.m_xPlayer->GetHumenController().GenerateCommands(input);
+	auto commands = m_mState.m_xPlayer->GetHumenController().GenerateCommands(state);
 
 	if( commands.empty() ) return false;
 

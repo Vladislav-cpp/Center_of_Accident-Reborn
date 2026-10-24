@@ -22,6 +22,7 @@ GameScreen::GameScreen(sf::RenderWindow& window, std::shared_ptr<EventBus> m_mUI
 
 	m_mUIEvents->Subscribe<HUDInitData>([this](const HUDInitData& uiData) {
 		m_pHUD = new MapHUD(uiData.player);
+		this->player = uiData.player;
 	});
 
 }
@@ -37,7 +38,10 @@ bool GameScreen::HandleEvent(const sf::Event& e) {
 }
 
 void GameScreen::Update(float dt) {
-	// TODO m_xScreens.m_xSession.view.setCenter( utility::ClampToMap( m_xScreens.m_xSession.m_xPlayer->Coord(), CFG().windowWidth, CFG().windowHeight, CFG().mapWidth, CFG().mapHeight) );
+	if(!m_mView) return;
+	m_mView->setCenter( utility::ClampToMap( player->Coord(), CFG().windowWidth, CFG().windowHeight, CFG().mapWidth, CFG().mapHeight) );
+
+	m_xWindow.setView(*m_mView);
 }
 
 void GameScreen::Draw(float dt) {
