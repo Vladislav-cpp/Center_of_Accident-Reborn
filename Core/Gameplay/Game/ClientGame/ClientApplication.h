@@ -29,6 +29,7 @@ private:
 
 	void Draw(float dt);
 
+	// ClientApplicationExtensions.inl
 	void SubscribeToEvents();
 	void OnOnlineGame(const OnlineGameRequestedEvent& event);
 	void OnOfflineGame(const OfflineGameRequestedEvent& event);

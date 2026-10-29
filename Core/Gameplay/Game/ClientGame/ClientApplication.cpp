@@ -26,7 +26,9 @@ ClientApplication::~ClientApplication() {
 
 void ClientApplication::Initialize() {
 	m_mWindow = new sf::RenderWindow(
-		sf::VideoMode({1000, 563}),
+		//sf::VideoMode({1000, 563}),
+		//sf::VideoMode({1600, 1200}),
+		sf::VideoMode({1920, 1200}),
 		"Accident Center 2",
 		sf::State::Windowed
 	);
