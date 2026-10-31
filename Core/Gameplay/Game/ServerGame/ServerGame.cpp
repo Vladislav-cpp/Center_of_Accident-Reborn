@@ -38,9 +38,9 @@ void ServerGame::Run() {
 	p.m_vPos = {600 , 600};
 	p.m_iMaxBots = 500;
 	p.m_iBotsPerSpawn = 5;
-	p.m_xSpawnTimer = GameTimer{3};	
+	p.m_xSpawnTimer = GameTimer{3};
 
-	m_xAIManager->AddSpawnPoint(p);
+	//m_xAIManager->AddSpawnPoint(p);
 
 	GameTimer tickTimer(0.00833); // 60 Гц: 1 / 60 ≈ 0.0166, 120 Гц: 1 / 120 ≈ 0.00833, 144 Гц: 1 / 144 ≈ 0.00694, 240 Гц: 1 / 240 ≈ 0.00416
 	GameTimer netRate(0.033); // 30 Гц

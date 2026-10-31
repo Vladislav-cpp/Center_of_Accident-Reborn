@@ -13,19 +13,22 @@
 #include "ActionHandler.h"
 #include "World.h"
 #include "InputState.h"
+#include "ClientNetworkSystem.h"
+#include "SoundManager.h"
 
 void GameController::InitializeOnline() {
 
 	// create local player
-
-
+	m_mState.m_xPlayer = CharacterFactory::Instance().CreateHumanPlayer<StaticStatsUfo>();
+	
+	m_mState.m_xPlayer->SetCoord( {100, 100} ); // координати брати з нетворку з серваку
 }
 
 void GameController::InitializeOffline() {
 	// create local player
 	m_mState.m_xPlayer = CharacterFactory::Instance().CreateHumanPlayer<StaticStatsUfo>();
 	
-	m_mState.m_xPlayer->SetCoord({100, 100} );
+	m_mState.m_xPlayer->SetCoord( {100, 100} );
 
 	m_mAIManager = std::make_unique<AIManager>();
 
@@ -34,14 +37,30 @@ void GameController::InitializeOffline() {
 
 	point1.m_iBotsPerSpawn	= 3;
 	point1.m_iMaxBots		= 20;
-	point1.m_vPos =			{500, 500};
+	point1.m_vPos			= {500, 500};
 
 	m_mAIManager->AddSpawnPoint(point1);
-
 }
 
 void GameController::UpdateOnline(float dt) {
 
+	for(auto& cmd : m_mCommand) {
+
+		if(MovementCommand* movement = dynamic_cast<MovementCommand*>(cmd.get()) ) {
+
+			movement->SetDT(dt);
+			movement->Execute();
+			continue;
+		}
+
+		SoundMg().PlaySound("Resources/sound and music/shot.ogg");
+		m_mNetwork.SendCommand( cmd.get() );
+
+	}
+
+	m_mNetwork.SendPlayerState();
+
+	m_mCommand.clear();
 }
 
 void GameController::UpdateOffline(float dt) {
@@ -50,6 +69,8 @@ void GameController::UpdateOffline(float dt) {
 
 		if(MovementCommand* movement = dynamic_cast<MovementCommand*>(c.get()) ) {
 			movement->SetDT(dt);
+		} else {
+			SoundMg().PlaySound("Resources/sound and music/shot.ogg");
 		}
 
 		c->Execute();

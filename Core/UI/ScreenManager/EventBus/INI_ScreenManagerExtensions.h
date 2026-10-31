@@ -57,7 +57,7 @@ void ScreenManager::OnButtonPressed(const ButtonPressed& event) {
 
 	switch (event.m_xType) {
 
-		case UIType::MainMenuStart: {
+		case UIType::MainMenuStartOffline: {
 			// Handle start button press
 			
 			
@@ -65,7 +65,7 @@ void ScreenManager::OnButtonPressed(const ButtonPressed& event) {
 			//TODO need m_xCurrentScreens.push_back(ScreenSubType::GlobalOverlay);
 			// тут потрібно або на таймер підвязати GlobalOverlay і після нього при умові ( все завантажилось) запускати GameScreen;
 			m_xCurrentScreens.push_back(ScreenSubType::GameScreen);
-			//m_mModelEvents.Publish<OnlineGameRequestedEvent>({});
+
 			m_mModelEvents.Publish<OfflineGameRequestedEvent>({});
 			break;
 		}
@@ -75,10 +75,16 @@ void ScreenManager::OnButtonPressed(const ButtonPressed& event) {
 			break;
 		}
 
-		//case UIType::Back: {
-		//	Pop();
-		//	break;
-		//}
+		case UIType::MainMenuStartOnline: {
+
+			m_xCurrentScreens.clear();
+			//TODO need m_xCurrentScreens.push_back(ScreenSubType::GlobalOverlay);
+			// тут потрібно або на таймер підвязати GlobalOverlay і після нього при умові ( все завантажилось) запускати GameScreen;
+			m_xCurrentScreens.push_back(ScreenSubType::GameScreen);
+
+			m_mModelEvents.Publish<OnlineGameRequestedEvent>({});
+			break;
+		}
 		
 		default: {
 			// Handle other button presses

@@ -5,16 +5,17 @@
 
 // for buttost
 // NameScreen (- #Screen) + name button (- #m_u) 
-// example MainMenuScreen have m_uStar  -->  MainMenuStart
+// example MainMenuScreen have m_uStarOffline  -->  MainMenuStartOffline
 
-#define UI_TYPE_LIST(X)     \
-    X( Screen )             \
-    X( Main )               \
-    X( Unknown )            \
-    X( HealthLabel )        \
-    X( Shield )             \
-    X( ConnectionState )    \
-    X( MainMenuStart )      \
+#define UI_TYPE_LIST(X)             \
+    X( Screen )                     \
+    X( Main )                       \
+    X( Unknown )                    \
+    X( HealthLabel )                \
+    X( Shield )                     \
+    X( ConnectionState )            \
+    X( MainMenuStartOffline )       \
+    X( MainMenuStartOnline )        \
     X( MainMenuOption )     
 
 

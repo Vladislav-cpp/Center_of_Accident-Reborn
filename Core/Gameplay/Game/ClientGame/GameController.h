@@ -5,6 +5,7 @@
 class EventBus;
 class GameState;
 class InputState;
+class ClientNetworkSystem;
 
 namespace sf {
 	class Event;
@@ -14,8 +15,9 @@ class GameController {
 public:
 	GameController(
 		GameState& state,
-		EventBus& events
-	) : m_mState(state), m_mModelEvents(events) {};
+		EventBus& events,
+		ClientNetworkSystem& net
+	) : m_mState(state), m_mModelEvents(events), m_mNetwork(net) {};
 
 public:
 	void InitializeOnline();
@@ -31,6 +33,7 @@ public:
 private:
 	EventBus& m_mModelEvents;
 	GameState& m_mState;
+	ClientNetworkSystem&	m_mNetwork;
 
 private:
 	std::unique_ptr<AIManager> m_mAIManager;

@@ -14,16 +14,21 @@ MainMenuScreen::MainMenuScreen(sf::RenderWindow& window, std::shared_ptr<EventBu
 	m_uMenu.GetxTexture().setSmooth(true);
 
 	// --- BUTTON ---
-	m_uStart.SetData("Resources/images/menu/start.png", {0, 0}, {227, 152}, 0, 0 ); // по факту це овери, а кнопка зашита в самий m_uMenu
-	m_uStart.GetxTexture().setSmooth(true);
-	m_uStart.SetCoord({ 427.f, 130.f });
-	m_uStart.m_xType = UIType::MainMenuStart;
+	m_uStartOffline.SetData("Resources/images/menu/start.png", {0, 0}, {227, 152}, 0, 0 ); // по факту це овери, а кнопка зашита в самий m_uMenu
+	m_uStartOffline.GetxTexture().setSmooth(true);
+	m_uStartOffline.SetCoord({ 427.f, 130.f });
+	m_uStartOffline.m_xType = UIType::MainMenuStartOffline;
 
 	m_uOption.SetData("Resources/images/menu/option.png", {0, 0}, {227, 152}, 0, 0 );
 	m_uOption.GetxTexture().setSmooth(true);
 	m_uOption.SetCoord({ 427.f, 130.f });
 	m_uOption.m_xType = UIType::MainMenuOption;
 
+
+	// --- MOCK START ONLINE ---
+	m_uStartOnline.CreateSimpleSquare({ 130u, 50u }, sf::Color::Green);
+	m_uStartOnline.SetCoord({ 460.f, 304.f });
+	m_uStartOnline.m_xType = UIType::MainMenuStartOnline;
 
 	// --- MUSIC ---
 	//SoundMg().PlayMusic( m_sMusicMenu, true, 70.f );
@@ -48,13 +53,28 @@ bool MainMenuScreen::HandleEvent(const sf::Event& e) {
 	if( mouse == nullptr || mouse->button != sf::Mouse::Button::Left ) return false;
 	
 	auto mousePos = sf::Mouse::getPosition(m_xWindow);
-
-	if( sf::IntRect({435, 146}, {191, 49}).contains(mousePos) ) {
+/*
+	if( m_uStartOffline.Contains(mousePos) ) {
 		OnStart();
+		return true;
+
+	} else if( m_uOption.Contains(mousePos) )  {
+		OnOption();
+		return true;
+	}
+*/
+
+	//return false;
+	if( sf::IntRect({435, 146}, {191, 49}).contains(mousePos) ) {
+		OnStartOffline();
 		return true;
 
 	} else if( sf::IntRect({451, 216}, {159, 49}).contains(mousePos) )  {
 		OnOption();
+		return true;
+
+	} else if( m_uStartOnline.Contains(mousePos) )  {
+		OnStartOnline();
 		return true;
 	}
 
@@ -73,14 +93,24 @@ void MainMenuScreen::Draw(float dt) {
 
 	m_uMenu.Draw(m_xWindow);
 
-	if( m_bOverStart ) m_uStart.Draw(m_xWindow);
+	if( m_bOverStart ) m_uStartOffline.Draw(m_xWindow);
 	if( m_bOverOption ) m_uOption.Draw(m_xWindow);
+
+	m_uStartOnline.Draw(m_xWindow);
 }
 
-void MainMenuScreen::OnStart() {
+void MainMenuScreen::OnStartOffline() {
 	
+	m_mUIEvents->Publish( ButtonPressed{ m_uStartOffline.m_xType } );
 
-	m_mUIEvents->Publish( ButtonPressed{ m_uStart.m_xType } );
+	//SoundMg().StopMusic( m_sMusicMenu );
+
+	//ClientGame::SendGameRequest()
+}
+
+void MainMenuScreen::OnStartOnline() {
+	
+	m_mUIEvents->Publish( ButtonPressed{ m_uStartOffline.m_xType } );
 
 	//SoundMg().StopMusic( m_sMusicMenu );
 
@@ -89,7 +119,6 @@ void MainMenuScreen::OnStart() {
 
 void MainMenuScreen::OnOption() {
 	
-
 	m_mUIEvents->Publish( ButtonPressed{ m_uOption.m_xType } );
 
 	//SoundMg().StopMusic( m_sMusicMenu );

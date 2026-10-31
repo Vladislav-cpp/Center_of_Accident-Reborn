@@ -38,12 +38,12 @@ void ClientApplication::Initialize() {
 
 	ActionHandler::Instance().SetWindow(m_mWindow);
 
-	m_mModelEvents = new EventBus();
-	m_mRender	= new Render(*m_mWindow);
-	m_mState	= new GameState(); 
-	m_mNetwork	= new ClientNetworkSystem(	*m_mModelEvents );
-	m_mScreens	= new ScreenManager(		m_mWindow, *m_mModelEvents );
-	m_mGame		= new GameController(		*m_mState,  *m_mModelEvents );
+	m_mModelEvents	= new EventBus();
+	m_mRender		= new Render(*m_mWindow);
+	m_mState		= new GameState(); 
+	m_mNetwork		= new ClientNetworkSystem(	*m_mModelEvents );
+	m_mScreens		= new ScreenManager(		m_mWindow, *m_mModelEvents );
+	m_mGame			= new GameController(		*m_mState,  *m_mModelEvents, *m_mNetwork );
 
 
 	CFG().windowWidth = 1000;
@@ -61,6 +61,10 @@ void ClientApplication::Run() {
 	while( m_mWindow->isOpen() ) {
 
 		TimeSys().Tick();
+
+		// TODO add net
+
+		m_mNetwork->Update();
 
 		const float dt = TimeSys().DeltaTime();
 
@@ -128,6 +132,7 @@ void ClientApplication::UpdateInterface(float dt) {
 }
 
 void ClientApplication::UpdateOnlineGame(float dt) {
+
 
 	m_mGame->UpdateOnline(dt);
 }

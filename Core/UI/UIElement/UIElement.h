@@ -15,6 +15,7 @@ class UIElement {
 	}
 
 	public:
+	void CreateSimpleSquare(sf::Vector2u size, sf::Color color);
 	virtual void SetData(std::string fileName, sf::Vector2i frameOffset, sf::Vector2i proportions, int distanceAnimation, int numberFrames);
 	virtual void Animation(float time);
 	virtual void Draw(sf::RenderWindow& app, float time = 0);
@@ -23,6 +24,15 @@ class UIElement {
 	virtual void Update();
 	virtual void SetCoord(sf::Vector2f position);
 	virtual void ChangeState(UIState newState);
+
+	public:
+	bool Contains(sf::Vector2f point) const {
+		return m_xSprite.getGlobalBounds().contains(point);
+	}
+
+	bool Contains(sf::Vector2i point) const {
+		return m_xSprite.getGlobalBounds().contains( sf::Vector2f(point) );
+	}
 
 	public:
 	sf::Sprite& GetSprite() { return m_xSprite; }

@@ -20,6 +20,10 @@ struct OnlineGameRequestedEvent {
 
 class PlayerCharacter;
 
-struct OfflineGameStart {
+struct OfflineGameStart {// TODO поміняти назву
+	const std::shared_ptr<PlayerCharacter> player;
+};
+
+struct OnlineGameStart {
 	const std::shared_ptr<PlayerCharacter> player;
 };

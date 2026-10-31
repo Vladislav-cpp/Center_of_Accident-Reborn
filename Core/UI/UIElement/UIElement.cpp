@@ -27,6 +27,21 @@ REFLECT_TYPE(
 {}
 );
 
+void UIElement::CreateSimpleSquare(sf::Vector2u size, sf::Color color) {
+    sf::Image image(size, color);
+
+    if(!m_xTexture.loadFromImage(image)) {
+        std::cerr << "Failed to create texture\n";
+        return throw std::runtime_error("Failed to load texture from file: " + m_sTextureFile);
+    }
+
+    m_xSprite.setTexture(m_xTexture, true);
+    m_xSprite.setTextureRect(sf::IntRect({ 0, 0 }, {
+        static_cast<int>(size.x),
+        static_cast<int>(size.y)
+    }));
+}
+
 void UIElement::SetData(std::string fileName, sf::Vector2i frameOffset, sf::Vector2i proportions, int distanceAnimation, int numberFrames) {
 	auto bLoad = m_xTexture.loadFromFile(fileName);
 	if( !bLoad ) std::cerr << "wrong load file - " << fileName << std::endl;
@@ -61,6 +76,7 @@ void UIElement::Draw(sf::RenderWindow& app, float time) {
 }
 
 void UIElement::Update() {
+	//if( m_sTextureFile.empty() ) return;
 	if( !m_xTexture.loadFromFile(m_sTextureFile) ) throw std::runtime_error("Failed to load texture from file: " + m_sTextureFile);
 
 	m_xSprite.setTexture(m_xTexture, true);

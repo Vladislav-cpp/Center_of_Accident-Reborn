@@ -50,16 +50,23 @@ void ClientApplication::Update(float dt) {
 void ClientApplication::OnOnlineGame(const OnlineGameRequestedEvent& event) {
 	m_mNetwork->Connect(
 		"192.168.1.102", //TODO брати з функції яка буде дивитись в Config але знатиме чи це локалка чи сервер
+						 //TODO тут щє треба резолвити повторне перепідключення  -  в випадку якщо не можемопідключитись викидати в мейн меню
 		60000
 	);
-}	
+
+	m_mState->mode = ApplicationMode::OnlineGame; //TODO це треба ставити не тут а в m_mNetwork а тут вже отримувати відповідь і рухати далі
+
+	m_mGame->InitializeOnline();
+
+	if(m_mState->m_xPlayer) m_mModelEvents->Publish<OnlineGameStart>({m_mState->m_xPlayer});
+}
 
 void ClientApplication::OnOfflineGame(const OfflineGameRequestedEvent& event) {
 	m_mState->mode = ApplicationMode::OfflineGame;
 
 	m_mGame->InitializeOffline();
 
-	if(m_mState->m_xPlayer) m_mModelEvents->Publish<OfflineGameStart>({m_mState->m_xPlayer});
+	if(m_mState->m_xPlayer) m_mModelEvents->Publish<OfflineGameStart>({m_mState->m_xPlayer}); // for UI 
 }
 
 void ClientApplication::OnReturnToInterface(const ReturnToInterfaceRequestedEvent& event) {

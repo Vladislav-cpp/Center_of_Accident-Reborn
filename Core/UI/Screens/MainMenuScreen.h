@@ -16,15 +16,18 @@ class MainMenuScreen : public Screen {
 	virtual void Update(float dt) override;
 	virtual void Draw(float dt) override;
 
-	void OnStart();
+	// TODO зробити лямбду в класі UIElement на нажаття
+	void OnStartOffline();
+	void OnStartOnline();
 	void OnOption();
 
 	virtual void OnOpen() override {};
 	virtual void OnClose() override {};
 
 	private:
-	UIElement m_uMenu;
-	UIElement m_uStart;
+	UIElement m_uMenu; // TODO need be pointer
+	UIElement m_uStartOffline;
+	UIElement m_uStartOnline;
 	UIElement m_uOption;
 
 	private:
