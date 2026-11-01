@@ -25,7 +25,7 @@ class ClientNetworkSystem : public net::tcp_client<MsgTypes>, public net::udp_cl
 	void SendJoinRequest();
 
 	public:
-	void SendPlayerState();
+	void SendPlayerState(std::shared_ptr<PlayerCharacter> player);
 	void SendCommand(Command* comm);
 
 	void UpdateInterpolation(float dt);

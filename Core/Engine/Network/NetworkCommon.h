@@ -22,6 +22,9 @@ enum class MsgTypes : uint32_t {
 	S2C_MatchState,
 	
 	S2C_WorldSnapshot,			// позиції/HP/снаряди/щит — 30 Гц, джерело правди
+
+	S2C_AddProjectile,			// TCP · повідомлення про новий снаряд
+	S2C_AddPlayer,				// TCP · повідомлення про нового гравця
 };
 
 // connection Pipeline 

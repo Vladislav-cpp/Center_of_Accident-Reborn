@@ -106,6 +106,7 @@ void ServerGame::SetState(MatchState s) {
     net::message<MsgTypes> msg;
 	msg.header.id = MsgTypes::S2C_MatchState;
     msg << m_eState;
+
     m_xNetwork->MessageAllClients(msg);
 }
 
@@ -116,6 +117,9 @@ void ServerGame::StartMatch() {
     p.m_iBotsPerSpawn = 5;
     p.m_xSpawnTimer   = GameTimer{ 3 };
     // m_xAIManager->AddSpawnPoint(p);
+
+
+    m_xNetwork->OnStartMatch();
 
 }
 

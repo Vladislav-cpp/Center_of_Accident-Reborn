@@ -45,12 +45,16 @@ void GameController::InitializeOffline() {
 void GameController::UpdateOnline(float dt) {
 	if(m_mState.m_xNetData->mstate != MatchState::InProgress ) return;
 
+	m_mNetwork.UpdateInterpolation(dt);
+
 	for(auto& cmd : m_mCommand) {
 
 		if(MovementCommand* movement = dynamic_cast<MovementCommand*>(cmd.get()) ) {
 
 			movement->SetDT(dt);
 			movement->Execute();
+
+			//m_mNetwork.SendCommand( cmd.get() );
 			continue;
 		}
 
@@ -59,7 +63,7 @@ void GameController::UpdateOnline(float dt) {
 
 	}
 
-	m_mNetwork.SendPlayerState();
+	m_mNetwork.SendPlayerState(m_mState.m_xPlayer);
 
 	m_mCommand.clear();
 }

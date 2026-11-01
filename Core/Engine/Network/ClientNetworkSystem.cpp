@@ -75,6 +75,34 @@ void ClientNetworkSystem::Update_TCP() {
 			tcp_inMsg >> state;
 			
 			m_mModelEvents.Publish<MatchStateInf>( {state, m_iMyID} );
+			break;
+		}
+
+		case( MsgTypes::S2C_AddPlayer ) : {
+			std::unordered_map<uint32_t, PlayerDescription> PlayerRst;
+			UnpackList(tcp_inMsg, PlayerRst);
+
+			for(auto& [id, desc] : PlayerRst) {
+				if(id==m_iMyID) continue;
+
+				auto pl = CharacterFactory::Instance().CreateHumanPlayer<StaticStatsUfo>(-1);
+				pl->SetID(id);
+				pl->SetCoord(desc.m_vCoord);
+				pl->SetHP(desc.HP);
+			}
+
+			break;
+		}
+
+		case(MsgTypes::S2C_AddProjectile): {
+			ProjectileDescription desc;
+			tcp_inMsg>>desc;
+			auto projectile = CharacterFactory::Instance().CreateAIPlayer<StaticStatsProjectile, Projectile>( desc.ID, desc.PlayerPos, desc.MousePos);
+			projectile->SetID(desc.ID);
+			projectile->SetOwnerID(desc.OwnerID);
+			projectile->SetCoord(desc.m_vCoord);
+
+			break;
 		}
 
 		} // switch
@@ -133,11 +161,11 @@ void ClientNetworkSystem::SendJoinRequest() {
 	net::tcp_client<MsgTypes>::Send(msg);
 }
 
-void ClientNetworkSystem::SendPlayerState() {
+void ClientNetworkSystem::SendPlayerState(std::shared_ptr<PlayerCharacter> player) {
 
 	PlayerDescription outdata;
 	outdata.ID = GetMyID();
-	//outdata.m_vCoord = m_pSession->m_xPlayer->Coord();
+	outdata.m_vCoord = player->Coord();
 	//outdata.HP = player->HP();
  
 	net::message<MsgTypes> msg;
@@ -178,16 +206,16 @@ if (m_snapshotBuffer.size() < 2) return;
     float targetTick = (float)m_snapshotBuffer.back().ServerTick - (m_fInterpolationDelay * 60.0f);
 
     // 2. Шукаємо два знімки, між якими потрапляє targetTick
-    WorldSnapshot* pA = nullptr;
-    WorldSnapshot* pB = nullptr;
+    WorldSnapshot* pA = &m_snapshotBuffer[m_snapshotBuffer.size() - 2];
+    WorldSnapshot* pB = &m_snapshotBuffer[m_snapshotBuffer.size() - 1];
 
-    for (size_t i = 0; i < m_snapshotBuffer.size() - 1; ++i) {
-        if (targetTick >= m_snapshotBuffer[i].ServerTick && targetTick < m_snapshotBuffer[i+1].ServerTick) {
-            pA = &m_snapshotBuffer[i];
-            pB = &m_snapshotBuffer[i+1];
-            break;
-        }
-    }
+    //for (size_t i = 0; i < m_snapshotBuffer.size() - 1; ++i) {
+    //    if (targetTick >= m_snapshotBuffer[i].ServerTick && targetTick < m_snapshotBuffer[i+1].ServerTick) {
+    //        pA = &m_snapshotBuffer[i];
+    //        pB = &m_snapshotBuffer[i+1];
+    //        break;
+    //    }
+    //}
 
     if (pA && pB) {
         // 3. Рахуємо коефіцієнт інтерполяції (t від 0 до 1)

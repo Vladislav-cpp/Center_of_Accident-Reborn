@@ -22,6 +22,8 @@ class ServerNetworkSystem : public net::tcp_server<MsgTypes>, public net::udp_se
 	void Update(size_t nMaxMessages = -1, bool bWait = false) {	
 		tcp_server::Update(nMaxMessages, bWait);
 		udp_server::Update(nMaxMessages, bWait);
+
+		OnTick();
 	}
 
 	void OnTick() {
@@ -51,6 +53,7 @@ class ServerNetworkSystem : public net::tcp_server<MsgTypes>, public net::udp_se
 	void BroadcastWorld();
 
 	void OnSyncWorldState();
+	void OnStartMatch();
 
 	std::shared_ptr<PlayerCharacter> OnPlayerDataUpdate(int id = 0);
 

@@ -48,7 +48,7 @@ void ServerNetworkSystem::OnMessage(const net::client_ref<MsgTypes>& client_ref,
 		auto pl = CharacterFactory::Instance().CreateHumanPlayer<StaticStatsUfo>(-1);
 		pl->SetID(id);
 
-		//m_sWorldState.PlayerRst.insert_or_assign(id, desc);
+		m_sWorldState.PlayerRst.insert_or_assign(id, desc);
 
 		net::message<MsgTypes> msg;
 		msg.header.id = MsgTypes::S2C_JoinAccepted;
@@ -111,10 +111,10 @@ void ServerNetworkSystem::OnMessage(const net::client_ref<MsgTypes>& client_ref,
 		m_sWorldState.Projectiles.insert_or_assign(desc.ID, desc);
 
 		// Відправляємо всім клієнтам
-		//net::message<MsgTypes> broadcast;
-		//broadcast.header.id = MsgTypes::Game_AddProjectile;
-		//broadcast << desc;
-		//MessageAllClients(broadcast);
+		net::message<MsgTypes> broadcast;
+		broadcast.header.id = MsgTypes::S2C_AddProjectile;
+		broadcast << desc;
+		MessageAllClients(broadcast);
 
 		break;
 	}
@@ -142,6 +142,14 @@ void ServerNetworkSystem::BroadcastWorld() {
 
 	net::udp_server<MsgTypes>::MessageAll(msg);
 
+}
+
+void ServerNetworkSystem::OnStartMatch() {
+		net::message<MsgTypes> msg;
+		msg.header.id = MsgTypes::S2C_AddPlayer;
+		PackList(msg, m_sWorldState.PlayerRst);
+
+		MessageAllClients(msg);
 }
 
 void ServerNetworkSystem::OnSyncWorldState() {
