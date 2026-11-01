@@ -5,26 +5,6 @@
 #include "utility.h"
 #include "net_all.h"
 
-enum class MsgTypesTEST : uint32_t {
-	Server_GetStatus,
-
-	Client_Accepted,
-	Client_RegisterWithServer,
-	Client_RegisterUDP,
-	Client_AssignID,
-
-//	Game_UpdateEnemy,
-	Game_WorldUpdate,
-
-	Game_AddProjectile,
-
-	Game_UpdatePlayer,
-	Game_ResurrectPlayer, // 	Game_StartInvulnerable,
-	Game_RemovePlayer,
-	Game_AddPlayer,
-	Game_EndtInvulnerable,
-};
-
 enum class MsgTypes : uint32_t {
 	// ---- Клієнт → Сервер ----
 	
@@ -39,6 +19,8 @@ enum class MsgTypes : uint32_t {
 	S2C_ServerInfo,				// UDP · періодично, напр. кількість онлайн
 	S2C_JoinAccepted,			// id + увесь початковий ростер, одним пакетом
 
+	S2C_MatchState,
+	
 	S2C_WorldSnapshot,			// позиції/HP/снаряди/щит — 30 Гц, джерело правди
 };
 

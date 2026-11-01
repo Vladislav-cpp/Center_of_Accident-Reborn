@@ -6,21 +6,8 @@
 #include "CharacterFactory.h"
 #include "NetworkCommon.h"
 #include "World.h"
-
-/*
-bool ServerNetworkSystem::OnClientConnect(std::shared_ptr<net::tcpÑonnection<MsgTypes>> client) {
-
-	uint32_t id = client->GetID();
-	Match().players[id] = PlayerSession{ id, PlayerConnState::Connecting, false };
-
-	net::message<MsgTypes> msgAddOtherPlayers;
-	msgAddOtherPlayers.header.id = MsgTypes::Client_Accepted;
-	net::tcp_server<MsgTypes>::MessageClient(client, msgAddOtherPlayers);
-
-	std::cout << "OnClientConnect " << std::endl; 
-
-	return true; 
-}*/
+#include "PlayerCharacter.h"
+#include "StaticStatsUfo.h"
 
 bool ServerNetworkSystem::OnClientConnect(std::shared_ptr<net::tcpÑonnection<MsgTypes>> client) {
 
@@ -57,21 +44,16 @@ void ServerNetworkSystem::OnMessage(const net::client_ref<MsgTypes>& client_ref,
 		auto id = tcpPtr->GetID();
 		msg >> desc;
 		desc.ID = id;
-		m_sWorldState.PlayerRst.insert_or_assign(id, desc);
+		
+		auto pl = CharacterFactory::Instance().CreateHumanPlayer<StaticStatsUfo>(-1);
+		pl->SetID(id);
 
-		// Match().players[id] = PlayerSession{ id, PlayerConnState::Connecting, true }; todo
+		//m_sWorldState.PlayerRst.insert_or_assign(id, desc);
 
-		// wait for all players
 		net::message<MsgTypes> msg;
 		msg.header.id = MsgTypes::S2C_JoinAccepted;
 		net::tcp_server<MsgTypes>::MessageClient(tcpPtr, msg);
 
-		/*
-		net::message<MsgTypes> msgAddPlayer;
-		msgAddPlayer.header.id = MsgTypes::Game_AddPlayer;
-		msgAddPlayer << desc;
-		//net::tcp_server<MsgTypes>::MessageAllClients(msgAddPlayer, tcpPtr);
-		*/
 
 		break;
 	}
@@ -154,7 +136,7 @@ void ServerNetworkSystem::BroadcastWorld() {
 	PackList(msg, m_sWorldState.Projectiles);
 	//if(m_sWorldState.Projectiles.size()>0) std::cout << "m_sWorldState.Projectiles.size()>0 - " <<  m_sWorldState.Projectiles.size() << std::endl;
 
-	if(!m_sWorldState.PlayerRst.empty() && m_sWorldState.PlayerRst.find(10000)->second.HP == 0) __debugbreak();
+	//if(!m_sWorldState.PlayerRst.empty() /*&& m_sWorldState.PlayerRst.find(10000)->second.HP == 0*/) __debugbreak();
 
 	msg << m_ServerTick;
 
@@ -245,7 +227,7 @@ void ServerNetworkSystem::OnSyncWorldState() {
 		PlayerDescription desc;
 		desc.ID      = pl->ID();
 		desc.HP      = pl->HP();
-		if(pl->HP() == 0) __debugbreak();
+		//if(pl->HP() == 0) __debugbreak();
 		desc.m_vCoord = pl->Coord();
 
 		m_sWorldState.PlayerRst.insert_or_assign(desc.ID, desc);
@@ -271,19 +253,12 @@ std::shared_ptr<PlayerCharacter> ServerNetworkSystem::OnPlayerDataUpdate(int id 
 void ServerNetworkSystem::SendResurrectPlayer(std::shared_ptr<PlayerCharacter> pl) {
 	PlayerDescription outdata;
 	outdata.ID = pl->ID();
-	outdata.m_vCoord = pl->Coord();
+	outdata.m_vCoord = {100, 100}; //pl->Coord(); TODO øóêàòè äîñòóïí³ êîîðäèíàòè
 	outdata.HP = pl->HP();
 
 	net::message<MsgTypes> msg;
 	//msg.header.id = MsgTypes::Game_ResurrectPlayer;
 	msg << outdata;
-
-	net::tcp_server<MsgTypes>::MessageClient(pl->ID(), msg);
-}
-
-void ServerNetworkSystem::SendEndInvulnerablePlayer(std::shared_ptr<PlayerCharacter> pl) {
-	net::message<MsgTypes> msg;
-	//msg.header.id = MsgTypes::Game_EndtInvulnerable;
 
 	net::tcp_server<MsgTypes>::MessageClient(pl->ID(), msg);
 }

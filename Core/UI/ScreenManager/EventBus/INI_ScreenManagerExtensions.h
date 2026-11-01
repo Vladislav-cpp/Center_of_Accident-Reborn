@@ -51,6 +51,11 @@ void ScreenManager::SubscribeToEvents() {
 			m_mUIEvents->Publish(HUDInitData{ UIdata.player });
 		});
 
+	m_mModelEvents.Subscribe<OnlineGameStart>(
+		[this](const OnlineGameStart& UIdata) {
+			m_mUIEvents->Publish(HUDInitData{ UIdata.player });
+		});
+
 }
 
 void ScreenManager::OnButtonPressed(const ButtonPressed& event) {
@@ -80,6 +85,8 @@ void ScreenManager::OnButtonPressed(const ButtonPressed& event) {
 			m_xCurrentScreens.clear();
 			//TODO need m_xCurrentScreens.push_back(ScreenSubType::GlobalOverlay);
 			// тут потрібно або на таймер підвязати GlobalOverlay і після нього при умові ( все завантажилось) запускати GameScreen;
+			//m_xCurrentScreens.push_back(ScreenSubType::GameScreen);
+
 			m_xCurrentScreens.push_back(ScreenSubType::GameScreen);
 
 			m_mModelEvents.Publish<OnlineGameRequestedEvent>({});

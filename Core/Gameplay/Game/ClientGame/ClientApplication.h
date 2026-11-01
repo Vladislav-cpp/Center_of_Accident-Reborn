@@ -34,7 +34,8 @@ private:
 	void OnOnlineGame(const OnlineGameRequestedEvent& event);
 	void OnOfflineGame(const OfflineGameRequestedEvent& event);
 	void OnReturnToInterface(const ReturnToInterfaceRequestedEvent& event);
-	void OnConnectionStateChanged(const ConnectionStateChangedEvent& event);
+	void OnJoinAcceptedEvent(const JoinAcceptedEvent& event);
+	void OnMatchStateChanged(const MatchStateInf& event);
 
 private:
 	// Game Info/state

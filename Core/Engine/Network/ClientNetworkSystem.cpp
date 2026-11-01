@@ -9,6 +9,8 @@
 #include "StaticStatsProjectile.h"
 #include "FireCommand.h"
 #include "EventBus.h"
+#include "GameState.h"
+#include "ClientEvents.h"
 
 bool ClientNetworkSystem::Connect(const std::string& host, const uint16_t port) {
 
@@ -36,79 +38,47 @@ void ClientNetworkSystem::Update() {
 void ClientNetworkSystem::Update_TCP() {
 	auto& tcp_inComing = net::tcp_client<MsgTypes>::Incoming();
 
-while( !tcp_inComing.empty() ) {
+	while( !tcp_inComing.empty() ) {
 			
-	auto tcp_inMsg = !tcp_inComing.empty() ? tcp_inComing.pop_front().msg : net::message<MsgTypes>();
+		auto tcp_inMsg = !tcp_inComing.empty() ? tcp_inComing.pop_front().msg : net::message<MsgTypes>();
 
-	switch( tcp_inMsg.header.id ) { 
+		switch( tcp_inMsg.header.id ) { 
 		
-	case( MsgTypes::S2C_ConnectionAccepted ) : {
+		case( MsgTypes::S2C_ConnectionAccepted ) : {
 
-		// поставити картинку що зєднання з сервером є
+			// поставити картинку що зєднання з сервером є
 
-		tcp_inMsg >> m_iMyID;
+			tcp_inMsg >> m_iMyID;
 
-		net::message<MsgTypes> udpRegisterMsg;
-		udpRegisterMsg.header.id = MsgTypes::C2S_RegisterUdp;
+			net::message<MsgTypes> udpRegisterMsg;
+			udpRegisterMsg.header.id = MsgTypes::C2S_RegisterUdp;
 
-		udpRegisterMsg << m_iMyID;
-		net::udp_client<MsgTypes>::Send(udpRegisterMsg);
+			udpRegisterMsg << m_iMyID;
+			net::udp_client<MsgTypes>::Send(udpRegisterMsg);
 				
-		std::cout << "S2C_ConnectionAccepted " << "\n";
-		break;
-	}
-
-	case( MsgTypes::S2C_JoinAccepted ) : {
-
-		//m_pSession->state = GameState::InGame;
-		std::cout << "S2C_JoinAccepted " << "\n";
-		break;
-	}
-
-/*
-
-	case(MsgTypes::Game_AddPlayer) : {
-		PlayerDescription otherDesc;
-		tcp_inMsg >> otherDesc;
-		const auto& ID = otherDesc.ID;
-		if(ID == m_iMyID) break;
-
-		//auto [it, inserted] = m_sWorldState.PlayerRst.insert_or_assign(ID, otherDesc);
-
-		if(m_existingPlayerIDs.find(ID) == m_existingPlayerIDs.end()) {
-			m_existingPlayerIDs.insert(ID);
-
-			auto pl = CharacterFactory::Instance().CreateHumanPlayer<StaticStatsUfo>(-1);
-			pl->SetID(ID);
-
-			std::cout << " - createPlayer Game_AddPlayer - " << ID << "\n";
-		} else {
-			std::cout << "Player ID already exists: " << ID << "\n";
+			std::cout << "S2C_ConnectionAccepted " << "\n";
+			break;
 		}
-		break;
-	}
 
-	case(MsgTypes::Game_ResurrectPlayer) : {
-		PlayerDescription desc;
-		tcp_inMsg >> desc;
+		case( MsgTypes::S2C_JoinAccepted ) : {
 
-		auto pl = m_pSession->m_xPlayer;
-		pl->SetHP( desc.HP );
-		pl->SetCoord( desc.m_vCoord );
-		pl->ChangeUIState(UIType::Shield, UIState::Visible);
+			//m_pSession->state = GameState::InGame;
+			std::cout << "S2C_JoinAccepted " << "\n";
 
-		break;
-	}
+			m_mModelEvents.Publish<JoinAcceptedEvent>({});
+			break;
+		}
 
-	case(MsgTypes::Game_EndtInvulnerable) : {
+		case( MsgTypes::S2C_MatchState ) : {
+			MatchState state;
 
-		m_pSession->m_xPlayer->ChangeUIState(UIType::Shield, UIState::Hidden);
+			tcp_inMsg >> state;
+			
+			m_mModelEvents.Publish<MatchStateInf>( {state, m_iMyID} );
+		}
 
-		break;
-	}*/
-
-	} // switch
-} // while
+		} // switch
+	} // while
 
 }
 
@@ -137,7 +107,7 @@ while( !udp_inComing.empty() ) {
 		UnpackList(udp_inMsg, newSnapshot.WState.PlayerRst);
 
 		auto& prst = newSnapshot.WState.PlayerRst;
-		if( !prst.empty() && prst.find(10000)->second.HP == 0 ) __debugbreak();
+		//if( !prst.empty() && prst.find(10000)->second.HP == 0 ) __debugbreak();
 
 		m_snapshotBuffer.push_back(newSnapshot);
 
@@ -157,6 +127,9 @@ void ClientNetworkSystem::SendJoinRequest() {
 	net::message<MsgTypes> msg;
 	msg.header.id = MsgTypes::C2S_JoinRequest;
 
+	PlayerDescription desc;
+	desc.ID = m_iMyID;
+	msg << desc;
 	net::tcp_client<MsgTypes>::Send(msg);
 }
 

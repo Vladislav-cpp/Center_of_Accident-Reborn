@@ -55,7 +55,7 @@ void HealthSystem::ProcessResurrectPlayer(ServerNetworkSystem* network) {
             m_vImmunityDurations.erase(id);
 
             pl->ChangeUIState(UIType::Shield, UIState::Hidden);
-            network->SendEndInvulnerablePlayer(pl);
+            //network->SendEndInvulnerablePlayer(pl);
 		}
 	}
 }

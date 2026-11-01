@@ -40,7 +40,8 @@ void ClientApplication::Initialize() {
 
 	m_mModelEvents	= new EventBus();
 	m_mRender		= new Render(*m_mWindow);
-	m_mState		= new GameState(); 
+	m_mState		= new GameState();
+	m_mState->m_xNetData = std::make_shared<NetData>();
 	m_mNetwork		= new ClientNetworkSystem(	*m_mModelEvents );
 	m_mScreens		= new ScreenManager(		m_mWindow, *m_mModelEvents );
 	m_mGame			= new GameController(		*m_mState,  *m_mModelEvents, *m_mNetwork );
@@ -57,6 +58,12 @@ void ClientApplication::Initialize() {
 }
 
 void ClientApplication::Run() {
+
+	m_mNetwork->Connect(
+		"192.168.1.102", //TODO брати з функції яка буде дивитись в Config але знатиме чи це локалка чи сервер
+						 //TODO тут щє треба резолвити повторне перепідключення  -  в випадку якщо не можемопідключитись викидати в мейн меню
+		60000
+	);
 
 	while( m_mWindow->isOpen() ) {
 

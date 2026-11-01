@@ -110,7 +110,7 @@ void MainMenuScreen::OnStartOffline() {
 
 void MainMenuScreen::OnStartOnline() {
 	
-	m_mUIEvents->Publish( ButtonPressed{ m_uStartOffline.m_xType } );
+	m_mUIEvents->Publish( ButtonPressed{ m_uStartOnline.m_xType } );
 
 	//SoundMg().StopMusic( m_sMusicMenu );
 

@@ -16,11 +16,11 @@
 #include "ClientNetworkSystem.h"
 #include "SoundManager.h"
 
-void GameController::InitializeOnline() {
+void GameController::InitializeOnline(uint32_t myID) {
 
 	// create local player
 	m_mState.m_xPlayer = CharacterFactory::Instance().CreateHumanPlayer<StaticStatsUfo>();
-	
+	m_mState.m_xPlayer->SetID(myID);
 	m_mState.m_xPlayer->SetCoord( {100, 100} ); // координати брати з нетворку з серваку
 }
 
@@ -43,6 +43,7 @@ void GameController::InitializeOffline() {
 }
 
 void GameController::UpdateOnline(float dt) {
+	if(m_mState.m_xNetData->mstate != MatchState::InProgress ) return;
 
 	for(auto& cmd : m_mCommand) {
 

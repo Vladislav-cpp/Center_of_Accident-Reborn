@@ -20,7 +20,7 @@ public:
 	) : m_mState(state), m_mModelEvents(events), m_mNetwork(net) {};
 
 public:
-	void InitializeOnline();
+	void InitializeOnline(uint32_t myID);
 	void InitializeOffline();
 
 public:

@@ -38,7 +38,7 @@ bool GameScreen::HandleEvent(const sf::Event& e) {
 }
 
 void GameScreen::Update(float dt) {
-	if(!m_mView) return;
+	if(!m_mView || !player) return;
 	m_mView->setCenter( utility::ClampToMap( player->Coord(), CFG().windowWidth, CFG().windowHeight, CFG().mapWidth, CFG().mapHeight) );
 
 	m_xWindow.setView(*m_mView);

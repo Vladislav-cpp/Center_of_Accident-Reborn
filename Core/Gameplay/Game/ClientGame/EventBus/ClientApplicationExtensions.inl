@@ -23,9 +23,15 @@ void ClientApplication::SubscribeToEvents() {
 		}
 	);
 
-	m_mModelEvents->Subscribe<ConnectionStateChangedEvent>(
-		[this](const ConnectionStateChangedEvent& event) {
-			OnConnectionStateChanged(event);
+	m_mModelEvents->Subscribe<JoinAcceptedEvent>(
+		[this](const JoinAcceptedEvent& event) {
+			OnJoinAcceptedEvent(event);
+		}
+	);
+
+	m_mModelEvents->Subscribe<MatchStateInf>(
+		[this](const MatchStateInf& event) {
+			OnMatchStateChanged(event);
 		}
 	);
 }
@@ -48,17 +54,9 @@ void ClientApplication::Update(float dt) {
 }
 
 void ClientApplication::OnOnlineGame(const OnlineGameRequestedEvent& event) {
-	m_mNetwork->Connect(
-		"192.168.1.102", //TODO брати з функції яка буде дивитись в Config але знатиме чи це локалка чи сервер
-						 //TODO тут щє треба резолвити повторне перепідключення  -  в випадку якщо не можемопідключитись викидати в мейн меню
-		60000
-	);
+	//if() TODO перевіряти m_mState->m_xNetData->state і треба нормально його оновлювати
 
-	m_mState->mode = ApplicationMode::OnlineGame; //TODO це треба ставити не тут а в m_mNetwork а тут вже отримувати відповідь і рухати далі
-
-	m_mGame->InitializeOnline();
-
-	if(m_mState->m_xPlayer) m_mModelEvents->Publish<OnlineGameStart>({m_mState->m_xPlayer});
+	m_mNetwork->SendJoinRequest();
 }
 
 void ClientApplication::OnOfflineGame(const OfflineGameRequestedEvent& event) {
@@ -78,14 +76,20 @@ void ClientApplication::OnReturnToInterface(const ReturnToInterfaceRequestedEven
 	m_mState->mode = ApplicationMode::Interface;
 }
 
-void ClientApplication::OnConnectionStateChanged( const ConnectionStateChangedEvent& event ) {
+void ClientApplication::OnMatchStateChanged(const MatchStateInf& event){
+	m_mState->m_xNetData->mstate = event.state;
+	m_mState->m_xNetData->id = event.m_iMyID;
 
-	//if(event.newState == net::ConnectionState::Connected) {
-	//	m_mState->mode = ApplicationMode::OnlineGame;
-	//	return;
-	//}
 
-	//if(event.newState == net::ConnectionState::Failed) {
-	//	m_mState->mode = ApplicationMode::Interface;
-	//}
+	if( event.state == MatchState::InProgress && m_mState->m_xNetData->state == PlayerConnState::Connecting ) {
+		m_mState->mode = ApplicationMode::OnlineGame;
+		
+		m_mGame->InitializeOnline( event.m_iMyID );
+
+		if(m_mState->m_xPlayer) m_mModelEvents->Publish<OnlineGameStart>({m_mState->m_xPlayer}); // for UI 
+	}
+}
+
+void ClientApplication::OnJoinAcceptedEvent( const JoinAcceptedEvent& event ) {
+		m_mState->m_xNetData->state = PlayerConnState::Connecting;
 }

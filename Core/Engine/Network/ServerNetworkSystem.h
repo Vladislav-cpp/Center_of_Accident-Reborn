@@ -56,7 +56,5 @@ class ServerNetworkSystem : public net::tcp_server<MsgTypes>, public net::udp_se
 
 	void SendResurrectPlayer(std::shared_ptr<PlayerCharacter> pl);
 
-	void SendEndInvulnerablePlayer(std::shared_ptr<PlayerCharacter> pl);
-
 };
 

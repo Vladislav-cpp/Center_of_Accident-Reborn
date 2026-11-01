@@ -1,7 +1,9 @@
 #pragma once
 
-struct ConnectionStateChangedEvent {
+#include <GameState.h>
 
+struct JoinAcceptedEvent {
+	// S2C_JoinAccepted
 };
 
 struct ReturnToInterfaceRequestedEvent {
@@ -26,4 +28,10 @@ struct OfflineGameStart {// TODO поміняти назву
 
 struct OnlineGameStart {
 	const std::shared_ptr<PlayerCharacter> player;
+};
+
+// online S2C messege
+struct MatchStateInf {
+	MatchState state = MatchState::WaitingForPlayers;
+	uint32_t m_iMyID = 0;
 };

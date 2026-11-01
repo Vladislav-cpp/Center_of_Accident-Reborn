@@ -17,15 +17,20 @@ enum class ApplicationMode {
 
 enum class PlayerConnState { 
 	Connecting,
-	Loading,
-	InMatch,
 	Disconnected
+};
+
+enum class MatchState {
+    WaitingForPlayers,
+    Countdown,
+    InProgress,
+    Finished
 };
 
 struct NetData {
     uint32_t id = 0;
-    PlayerConnState state = PlayerConnState::Connecting;
-    bool bReady = false;
+    PlayerConnState state = PlayerConnState::Disconnected;
+	MatchState mstate = MatchState::WaitingForPlayers;
 };
 
 class GameState {
