@@ -83,6 +83,16 @@ void GameController::UpdateOffline(float dt) {
 
 	m_mAIManager->Update(dt);
 
+	// calculate world state for each object
+	//	- arguments
+	// ai commands 
+	// Projectiles commands
+	// m_mCommand
+
+	//
+	// acamulate all commands and execute them
+	// CollSys -> HealthSys
+	//
 	for( auto& ai : WProjectiles() ) for( auto& comand : ai->GetController()->GenerateCommands(dt) ) comand->Execute();
 
 	CollSys().UpdateCollisions();

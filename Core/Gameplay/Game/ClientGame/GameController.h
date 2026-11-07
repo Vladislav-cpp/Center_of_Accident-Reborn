@@ -31,11 +31,11 @@ public:
 	bool HandleEvent(const InputState& state);
 
 private:
-	EventBus& m_mModelEvents;
-	GameState& m_mState;
+	EventBus&				m_mModelEvents;
+	GameState&				m_mState;
 	ClientNetworkSystem&	m_mNetwork;
 
 private:
-	std::unique_ptr<AIManager> m_mAIManager;
-	std::vector<std::unique_ptr<Command>> m_mCommand;
+	std::unique_ptr<AIManager>				m_mAIManager;
+	std::vector<std::unique_ptr<Command>>	m_mCommand;
 };

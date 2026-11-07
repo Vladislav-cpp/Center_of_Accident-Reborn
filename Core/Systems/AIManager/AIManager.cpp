@@ -7,21 +7,29 @@
 #include <cmath>
 #include <limits>
 
-void AIManager::Update(float dt) {
-	for (auto& point : m_xSpawnPoints) {
+void AIManager::Update(float dt, bool bExecuteCommands = true) {
+	for(auto& point : m_xSpawnPoints) {
 
 		if( point.m_iSpawned >= point.m_iMaxBots || !point.m_xSpawnTimer.IsFinished() ) continue;
 
 		int botsToSpawn = std::min(point.m_iBotsPerSpawn, point.m_iMaxBots - point.m_iSpawned);
 
-		for (int i = 0; i < botsToSpawn; ++i) SpawnBotAt(point);
+		for(int i = 0; i < botsToSpawn; ++i) {
+			SpawnBotAt(point);
+		}
 
 		point.m_xSpawnTimer.Restart();
 	}
 
 	UpdateTargets();
 
-	for( auto& ai : WAIPlayers() ) for( auto& comand : ai->GetController()->GenerateCommands(dt) ) comand->Execute();
+	if( !bExecuteCommands ) return;
+
+	for( auto& ai : WAIPlayers() ) {
+		for( auto& comand : ai->GetController()->GenerateCommands(dt) ) {
+			comand->Execute();
+		}
+	}
 }
 
 void AIManager::SpawnBotAt(SpawnPoint& point) {
@@ -34,8 +42,11 @@ void AIManager::SpawnBotAt(SpawnPoint& point) {
 	if( const auto& nearestPlayer = FindNearestEnemy(bot->Coord()) ) bot->SetEnemyPlayer(nearestPlayer);
 }
 
+
+// TODO LP : if we hawe alot of ai or alot of players we can optimize this function 
+// by caching the nearest player for each ai and only updating it when the player moves a certain distance or when a new player joins the game.
 void AIManager::UpdateTargets() {
-	for(auto ai : WAIPlayers()) {
+	for( auto ai : WAIPlayers() ) {
 
 		auto target = ai->EnemyPlayer();
 

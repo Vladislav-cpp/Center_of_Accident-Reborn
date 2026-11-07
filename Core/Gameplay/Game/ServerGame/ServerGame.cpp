@@ -50,9 +50,9 @@ void ServerGame::SimulateWorld(float dt) {
         for(auto& c : ai->GetController()->GenerateCommands(dt)) c->Execute();
     }
 
-    for( auto& pr : WProjectiles() ) {
-        for (auto& c : pr->GetController()->GenerateCommands(dt)) c->Execute();
-    }
+   // for( auto& pr : WProjectiles() ) {
+   //    for (auto& c : pr->GetController()->GenerateCommands(dt)) c->Execute();
+   // }
 
     CollSys().UpdateCollisions();
     HealthSys().Update(m_xNetwork);

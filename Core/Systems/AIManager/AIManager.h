@@ -17,7 +17,7 @@ struct SpawnPoint {
 
 class AIManager {
 	public:
-	void Update(float dt);
+	void Update(float dt, bool bExecuteCommands = true);
 
 	void AddSpawnPoint(const SpawnPoint& point) {
 		m_xSpawnPoints.push_back(point);
